@@ -40,6 +40,13 @@ export default function Checkout() {
             const data = await res.json();
             if (data.success) {
                 localStorage.removeItem("cart");
+
+                // Auto-save order ID for tracking
+                const savedOrders = JSON.parse(localStorage.getItem("savedOrders") || "[]");
+                const newOrder = { id: data.orderId, savedAt: new Date().toISOString() };
+                localStorage.setItem("savedOrders", JSON.stringify([newOrder, ...savedOrders]));
+                localStorage.setItem("lastOrderId", data.orderId);
+
                 router.push(`/payment/${data.orderId}`);
             } else {
                 alert("Order failed: " + data.message);

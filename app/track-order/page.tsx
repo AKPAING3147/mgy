@@ -1,111 +1,311 @@
-import { Search, Package } from "lucide-react";
+"use client";
+
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { prisma } from "@/lib/prisma";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Search, Package, Clock, CheckCircle, Truck, Bookmark, X, Heart, Copy, Check } from "lucide-react";
+import Link from "next/link";
 
-export default async function TrackOrderPage({ searchParams }: { searchParams: Promise<{ id?: string }> }) {
-    const { id } = await searchParams;
-    let order = null;
-    if (id) {
-        order = await prisma.order.findUnique({
-            where: { id },
-            include: { items: { include: { product: true } } }
-        });
-    }
+interface Order {
+    id: string;
+    status: string;
+    totalAmount: number;
+    createdAt: string;
+    fullName: string;
+    paymentStatus: string;
+}
 
-    const steps = [
-        { status: 'PENDING_PAYMENT', label: 'Order Placed' },
-        { status: 'PAYMENT_REVIEW', label: 'Payment Review' },
-        { status: 'APPROVED', label: 'Approved' },
-        { status: 'PRINTING', label: 'Printing' },
-        { status: 'SHIPPED', label: 'Shipped' },
-    ];
+interface SavedOrder {
+    id: string;
+    savedAt: string;
+}
 
-    const currentStepIndex = order ? steps.findIndex(s => s.status === order.status) : -1;
+export default function TrackOrderPage() {
+    const [orderId, setOrderId] = useState("");
+    const [order, setOrder] = useState<Order | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [savedOrders, setSavedOrders] = useState<SavedOrder[]>([]);
+    const [favorites, setFavorites] = useState<string[]>([]);
+    const [copied, setCopied] = useState(false);
+    const [initialLoading, setInitialLoading] = useState(true);
+
+    useEffect(() => {
+        // Load saved orders from localStorage
+        const saved = localStorage.getItem("savedOrders");
+        if (saved) {
+            setSavedOrders(JSON.parse(saved));
+        }
+        // Load favorites
+        const favs = localStorage.getItem("favorites");
+        if (favs) {
+            setFavorites(JSON.parse(favs));
+        }
+
+        // Check for last order and auto-load it
+        const lastOrderId = localStorage.getItem("lastOrderId");
+        if (lastOrderId) {
+            setOrderId(lastOrderId);
+            searchOrderById(lastOrderId);
+        } else {
+            setInitialLoading(false);
+        }
+    }, []);
+
+    const searchOrderById = async (id: string) => {
+        if (!id.trim()) return;
+        setLoading(true);
+        setError("");
+        setOrder(null);
+
+        try {
+            const res = await fetch(`/api/orders/${id}`);
+            const data = await res.json();
+
+            if (data.success) {
+                setOrder(data.order);
+            } else {
+                setError("Order not found");
+            }
+        } catch (e) {
+            setError("Failed to fetch order");
+        } finally {
+            setLoading(false);
+            setInitialLoading(false);
+        }
+    };
+
+    const searchOrder = () => searchOrderById(orderId);
+
+    const copyOrderId = (id: string) => {
+        navigator.clipboard.writeText(id);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    const removeSavedOrder = (id: string) => {
+        const newSaved = savedOrders.filter(o => o.id !== id);
+        setSavedOrders(newSaved);
+        localStorage.setItem("savedOrders", JSON.stringify(newSaved));
+        if (id === localStorage.getItem("lastOrderId")) {
+            localStorage.removeItem("lastOrderId");
+        }
+    };
+
+    const getStatusIcon = (status: string) => {
+        switch (status) {
+            case "PENDING_PAYMENT": return <Clock className="w-5 h-5" />;
+            case "PAYMENT_REVIEW": return <Package className="w-5 h-5" />;
+            case "APPROVED": return <CheckCircle className="w-5 h-5" />;
+            case "COMPLETED": return <CheckCircle className="w-5 h-5" />;
+            case "SHIPPED": return <Truck className="w-5 h-5" />;
+            default: return <Package className="w-5 h-5" />;
+        }
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case "PENDING_PAYMENT": return "text-yellow-600 bg-yellow-100";
+            case "PAYMENT_REVIEW": return "text-blue-600 bg-blue-100";
+            case "APPROVED": return "text-green-600 bg-green-100";
+            case "COMPLETED": return "text-emerald-700 bg-emerald-100";
+            case "SHIPPED": return "text-purple-600 bg-purple-100";
+            default: return "text-stone-600 bg-stone-100";
+        }
+    };
+
+    const getStatusText = (status: string) => {
+        switch (status) {
+            case "PENDING_PAYMENT": return "Awaiting Payment";
+            case "PAYMENT_REVIEW": return "Payment Under Review";
+            case "APPROVED": return "Approved";
+            case "COMPLETED": return "Order Completed";
+            case "SHIPPED": return "Shipped";
+            default: return status.replace("_", " ");
+        }
+    };
 
     return (
-        <div className="min-h-screen bg-background pb-20">
+        <main className="min-h-screen bg-background">
             <Navbar />
-            <div className="container mx-auto pt-32 px-4 max-w-3xl">
-                <h1 className="text-4xl font-serif text-center mb-4">Track Your Order</h1>
-                <p className="text-center text-muted-foreground mb-8">Enter your Order ID to see real-time updates.</p>
 
-                <form className="flex gap-2 mb-16 max-w-md mx-auto">
-                    <Input name="id" placeholder="Enter Order ID" defaultValue={id || ''} required className="h-12" />
-                    <Button type="submit" size="lg" className="h-12"><Search className="w-4 h-4 mr-2" /> Track</Button>
-                </form>
+            <div className="pt-24 pb-12">
+                <div className="container mx-auto px-4 max-w-4xl">
+                    <h1 className="text-4xl font-bold text-center mb-2">Track Your Order</h1>
+                    <p className="text-center text-muted-foreground mb-8">Enter your order ID or view your recent orders below</p>
 
-                {id && !order && (
-                    <div className="text-center p-8 bg-red-50 text-red-600 rounded-lg border border-red-100">
-                        Order ID <strong>{id}</strong> not found. Please check and try again.
-                    </div>
-                )}
-
-                {order && (
-                    <div className="bg-white p-8 rounded-lg shadow-xl border border-border/50">
-                        <div className="flex justify-between items-center mb-8 border-b pb-4">
-                            <div>
-                                <h2 className="text-xl font-medium font-serif">Order #{order.id}</h2>
-                                <p className="text-sm text-muted-foreground">{new Date(order.createdAt).toLocaleDateString()} at {new Date(order.createdAt).toLocaleTimeString()}</p>
+                    {/* Search Box */}
+                    <Card className="mb-8 shadow-lg border-2">
+                        <CardContent className="pt-6">
+                            <div className="flex gap-3">
+                                <Input
+                                    placeholder="Enter your Order ID"
+                                    value={orderId}
+                                    onChange={(e) => setOrderId(e.target.value)}
+                                    onKeyDown={(e) => e.key === "Enter" && searchOrder()}
+                                    className="h-12 text-lg border-2"
+                                />
+                                <Button onClick={searchOrder} disabled={loading} className="h-12 px-6 gap-2 bg-primary">
+                                    <Search className="w-5 h-5" />
+                                    {loading ? "..." : "Search"}
+                                </Button>
                             </div>
-                            <div className="text-right">
-                                <span className={`inline-block px-4 py-1 rounded-full text-sm font-bold ${order.status === 'APPROVED' ? 'bg-green-100 text-green-800' : 'bg-primary/10 text-primary'}`}>
-                                    {order.status.replace("_", " ")}
-                                </span>
-                            </div>
-                        </div>
+                            {error && <p className="text-red-500 mt-3 font-medium">{error}</p>}
+                        </CardContent>
+                    </Card>
 
-                        {/* Progress Bar */}
-                        <div className="mb-12 relative">
-                            <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-200 -translate-y-1/2 z-0"></div>
-                            <div
-                                className="absolute top-1/2 left-0 h-1 bg-primary -translate-y-1/2 z-0 transition-all duration-1000"
-                                style={{ width: `${Math.max(0, (currentStepIndex / (steps.length - 1)) * 100)}%` }}
-                            ></div>
-                            <div className="flex justify-between relative z-10">
-                                {steps.map((step, idx) => {
-                                    const isCompleted = idx <= currentStepIndex;
-                                    const isCurrent = idx === currentStepIndex;
-                                    return (
-                                        <div key={step.status} className="flex flex-col items-center">
-                                            <div className={`w-4 h-4 rounded-full border-2 ${isCompleted ? 'bg-primary border-primary' : 'bg-white border-gray-300'} mb-2`}></div>
-                                            <span className={`text-xs ${isCurrent ? 'font-bold text-primary' : 'text-muted-foreground'}`}>{step.label}</span>
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div>
-                                <h3 className="font-bold mb-4 font-serif">Shipping To</h3>
-                                <p className="text-sm">{order.fullName}</p>
-                                <p className="text-sm text-muted-foreground">{order.address}</p>
-                                <p className="text-sm text-muted-foreground">{order.phone}</p>
-                            </div>
-                            <div>
-                                <h3 className="font-bold mb-4 font-serif">Order Items</h3>
-                                <div className="space-y-2">
-                                    {order.items.map((item: any) => (
-                                        <div key={item.id} className="flex justify-between text-sm py-2 border-b last:border-0">
-                                            <span>{item.product.name} <span className="text-muted-foreground">x{item.quantity}</span></span>
-                                            <span className="font-medium">Please wait...</span>
-                                            {/* Note: I didn't verify if I can easily calculate item price here without pulling product price or storing it. 
-                                        I'll just show name and quantity. Or fetch unit price.
-                                    */}
-                                        </div>
-                                    ))}
+                    {/* Loading Skeleton */}
+                    {initialLoading && (
+                        <Card className="mb-8">
+                            <CardHeader>
+                                <Skeleton className="h-6 w-48" />
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <Skeleton className="h-16" />
+                                    <Skeleton className="h-16" />
+                                    <Skeleton className="h-16" />
+                                    <Skeleton className="h-16" />
                                 </div>
-                                <div className="flex justify-between font-bold mt-4 text-lg">
-                                    <span>Total</span>
-                                    <span>${order.totalAmount.toFixed(2)}</span>
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {/* Order Result */}
+                    {order && !initialLoading && (
+                        <Card className="mb-8 shadow-lg border-l-4 border-l-primary">
+                            <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10">
+                                <CardTitle className="flex items-center justify-between flex-wrap gap-4">
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-lg">Order ID:</span>
+                                        <code className="bg-white px-3 py-1 rounded font-mono text-sm">{order.id}</code>
+                                        <button
+                                            onClick={() => copyOrderId(order.id)}
+                                            className="p-2 hover:bg-white rounded-full transition-colors"
+                                            title="Copy Order ID"
+                                        >
+                                            {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                                        </button>
+                                    </div>
+                                    <span className={`px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 ${getStatusColor(order.status)}`}>
+                                        {getStatusIcon(order.status)}
+                                        {getStatusText(order.status)}
+                                    </span>
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="pt-6">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                    <div className="bg-stone-50 p-4 rounded-lg">
+                                        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Customer</p>
+                                        <p className="font-semibold">{order.fullName}</p>
+                                    </div>
+                                    <div className="bg-stone-50 p-4 rounded-lg">
+                                        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Total</p>
+                                        <p className="font-bold text-primary text-xl">${order.totalAmount.toFixed(2)}</p>
+                                    </div>
+                                    <div className="bg-stone-50 p-4 rounded-lg">
+                                        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Payment</p>
+                                        <p className="font-semibold">{order.paymentStatus}</p>
+                                    </div>
+                                    <div className="bg-stone-50 p-4 rounded-lg">
+                                        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Date</p>
+                                        <p className="font-semibold">{new Date(order.createdAt).toLocaleDateString()}</p>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
+
+                                {order.status === "PENDING_PAYMENT" && (
+                                    <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mt-6">
+                                        <p className="text-yellow-800 font-medium">
+                                            📎 Please upload your payment slip to proceed with your order.
+                                        </p>
+                                        <Link href={`/payment/${order.id}`}>
+                                            <Button className="mt-3 bg-yellow-600 hover:bg-yellow-700">Upload Payment Slip →</Button>
+                                        </Link>
+                                    </div>
+                                )}
+
+                                {order.status === "COMPLETED" && (
+                                    <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-lg mt-6">
+                                        <p className="text-emerald-800 font-medium flex items-center gap-2">
+                                            <CheckCircle className="w-5 h-5" />
+                                            Your order has been completed! Thank you for your purchase.
+                                        </p>
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {/* Saved Orders & Favorites */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Saved Order IDs */}
+                        <Card className="shadow-md">
+                            <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent">
+                                <CardTitle className="flex items-center gap-2 text-lg">
+                                    <Bookmark className="w-5 h-5 text-primary" />
+                                    Your Orders
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="pt-4">
+                                {savedOrders.length === 0 ? (
+                                    <p className="text-muted-foreground text-sm py-4">Your orders will appear here after placing an order.</p>
+                                ) : (
+                                    <div className="space-y-2 max-h-64 overflow-auto">
+                                        {savedOrders.map((saved) => (
+                                            <div key={saved.id} className="flex items-center justify-between p-3 bg-stone-50 rounded-lg border hover:border-primary transition-colors">
+                                                <button
+                                                    onClick={() => { setOrderId(saved.id); searchOrderById(saved.id); }}
+                                                    className="text-left flex-1 hover:text-primary"
+                                                >
+                                                    <p className="font-mono text-sm truncate max-w-[200px]">{saved.id}</p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {new Date(saved.savedAt).toLocaleDateString()}
+                                                    </p>
+                                                </button>
+                                                <button
+                                                    onClick={() => removeSavedOrder(saved.id)}
+                                                    className="p-2 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        {/* Favorites */}
+                        <Card className="shadow-md">
+                            <CardHeader className="bg-gradient-to-r from-secondary/10 to-transparent">
+                                <CardTitle className="flex items-center gap-2 text-lg">
+                                    <Heart className="w-5 h-5 text-primary fill-primary" />
+                                    Favorite Products
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="pt-4">
+                                {favorites.length === 0 ? (
+                                    <p className="text-muted-foreground text-sm py-4">Click the heart icon on products to save your favorites.</p>
+                                ) : (
+                                    <div className="space-y-2 max-h-64 overflow-auto">
+                                        {favorites.map((id) => (
+                                            <Link key={id} href={`/product/${id}`}>
+                                                <div className="p-3 bg-stone-50 rounded-lg border hover:border-primary hover:bg-primary/5 transition-all">
+                                                    <p className="font-mono text-sm truncate">{id}</p>
+                                                    <p className="text-xs text-primary font-medium mt-1">View Product →</p>
+                                                </div>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
                     </div>
-                )}
+                </div>
             </div>
-        </div>
+        </main>
     );
 }

@@ -18,8 +18,8 @@ const lato = Lato({
 });
 
 export const metadata: Metadata = {
-  title: "Eternity Invites | Premium Wedding Invitations",
-  description: "Elegant, custom wedding invitations for your special day.",
+  title: "MGY OFFSET | Premium Printing Services",
+  description: "Premium printing services for wedding invitations, business cards, and more.",
 };
 
 export default function RootLayout({

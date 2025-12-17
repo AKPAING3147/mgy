@@ -19,7 +19,7 @@ export async function POST(req: Request) {
             user = await prisma.user.create({
                 data: {
                     email: shipping.email,
-                    password: "$2a$10$GuestPasswordHashPlaceholder", // Placeholder
+                    password: "$2a$10$GuestPasswordHashPlaceholder",
                     name: shipping.fullName,
                     role: "USER"
                 }
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
                     create: cartItems.map((item: any) => ({
                         productId: item.product.id,
                         quantity: item.quantity,
-                        customization: JSON.stringify(item.customization)
+                        customization: JSON.stringify(item.customization || item.notes || {})
                     }))
                 }
             }
@@ -47,7 +47,11 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ success: true, orderId: order.id });
     } catch (error) {
-        console.error(error);
-        return NextResponse.json({ success: false, message: "Order creation failed" }, { status: 500 });
+        console.error("Order creation error:", error);
+        return NextResponse.json({
+            success: false,
+            message: "Order creation failed",
+            error: error instanceof Error ? error.message : "Unknown error"
+        }, { status: 500 });
     }
 }

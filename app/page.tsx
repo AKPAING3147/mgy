@@ -12,15 +12,18 @@ export default async function Home() {
     <main className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Header with Business Name */}
-      <div className="pt-24 pb-8 bg-gradient-to-r from-primary to-secondary">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-4">MGY OFFSET</h1>
-          <p className="text-xl text-white/90">Premium Printing Services</p>
+      {/* Hero Banner - Responsive */}
+      <div className="pt-16">
+        <div className="relative w-full">
+          <img
+            src="/hero-banner.jpg"
+            alt="MGY OFFSET - Printing Services"
+            className="w-full h-auto object-cover"
+          />
         </div>
       </div>
 
-      {/* Products Only */}
+      {/* Products */}
       <ProductsGrid products={products} />
 
       {/* Footer */}

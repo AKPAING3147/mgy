@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
@@ -20,30 +19,34 @@ export default function Navbar() {
     ];
 
     return (
-        <nav className="fixed top-0 w-full z-50 bg-background/95 backdrop-blur-sm border-b border-border shadow-sm">
-            <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-                <Link href="/" className="flex items-center gap-2 shrink-0">
-                    <span className="font-serif text-2xl font-bold text-primary">Eternity</span>
-                    <span className="font-serif text-2xl italic text-foreground">Invites</span>
+        <nav className="fixed top-0 w-full z-50 bg-white shadow-md">
+            <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+                {/* Logo */}
+                <Link href="/" className="flex items-center gap-2">
+                    <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
+                        <span className="text-white font-bold text-lg">M</span>
+                    </div>
+                    <div>
+                        <span className="font-bold text-xl text-primary">MGY</span>
+                        <span className="font-bold text-xl text-secondary ml-1">OFFSET</span>
+                    </div>
                 </Link>
 
                 {/* Desktop Navigation */}
-                <div className="hidden md:flex items-center gap-8">
+                <div className="hidden md:flex items-center gap-6">
                     {navLinks.map((link) => (
                         <Link
                             key={link.href}
                             href={link.href}
-                            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                            className="text-sm font-medium text-stone-600 hover:text-primary transition-colors"
                         >
                             {link.label}
                         </Link>
                     ))}
-                    <LanguageSwitcher />
-                    <Link href="/auth/login">
-                        <Button variant="premium" className="shadow-lg">
-                            {t("nav_sign_in")}
-                        </Button>
+                    <Link href="/track-order" className="relative" title="Favorites & Orders">
+                        <Heart className="w-5 h-5 text-stone-600 hover:text-primary transition-colors" />
                     </Link>
+                    <LanguageSwitcher />
                 </div>
 
                 {/* Mobile Menu Button */}
@@ -51,7 +54,7 @@ export default function Navbar() {
                     <LanguageSwitcher />
                     <button
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        className="p-2 text-foreground hover:text-primary transition-colors"
+                        className="p-2 text-stone-600"
                     >
                         {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                     </button>
@@ -65,24 +68,19 @@ export default function Navbar() {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="md:hidden bg-background border-t border-border overflow-hidden"
+                        className="md:hidden bg-white border-t overflow-hidden"
                     >
-                        <div className="container mx-auto px-4 py-4 space-y-4">
+                        <div className="container mx-auto px-4 py-4 space-y-3">
                             {navLinks.map((link) => (
                                 <Link
                                     key={link.href}
                                     href={link.href}
-                                    className="block py-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                                    className="block py-2 text-stone-600 hover:text-primary"
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
                                     {link.label}
                                 </Link>
                             ))}
-                            <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
-                                <Button variant="premium" className="w-full shadow-lg">
-                                    {t("nav_sign_in")}
-                                </Button>
-                            </Link>
                         </div>
                     </motion.div>
                 )}
