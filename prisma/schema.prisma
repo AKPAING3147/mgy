@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("USER") // USER, ADMIN
+  orders    Order[]
+  createdAt DateTime @default(now())
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  name        String
+  description String
+  price       Float
+  category    String
+  images      String      // JSON string of image URLs
+  createdAt   DateTime    @default(now())
+  orderItems  OrderItem[]
+}
+
+model Order {
+  id             String      @id @default(cuid())
+  user           User        @relation(fields: [userId], references: [id])
+  userId         String
+  items          OrderItem[]
+  totalAmount    Float
+  status         String      @default("PENDING_PAYMENT") // statuses: PENDING_PAYMENT, PAYMENT_REVIEW, APPROVED, PRINTING, SHIPPED
+  paymentSlipUrl String?
+  paymentStatus  String      @default("PENDING") // PENDING, REVIEW, APPROVED, REJECTED
+  
+  // Checkout details
+  fullName       String
+  email          String
+  phone          String
+  address        String
+  
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model OrderItem {
+  id            String   @id @default(cuid())
+  order         Order    @relation(fields: [orderId], references: [id])
+  orderId       String
+  product       Product  @relation(fields: [productId], references: [id])
+  productId     String
+  quantity      Int
+  customization String   // JSON string: { brideName, groomName, date, venue, etc. }
+}
