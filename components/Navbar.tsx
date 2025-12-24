@@ -22,14 +22,9 @@ export default function Navbar() {
         <nav className="fixed top-0 w-full z-50 bg-white shadow-md">
             <div className="container mx-auto px-4 py-3 flex justify-between items-center">
                 {/* Logo */}
+                {/* Logo */}
                 <Link href="/" className="flex items-center gap-2">
-                    <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
-                        <span className="text-white font-bold text-lg">M</span>
-                    </div>
-                    <div>
-                        <span className="font-bold text-xl text-primary">MGY</span>
-                        <span className="font-bold text-xl text-secondary ml-1">OFFSET</span>
-                    </div>
+                    <img src="/logo.jpg" alt="MGY OFFSET" className="h-16 w-auto object-contain" />
                 </Link>
 
                 {/* Desktop Navigation */}

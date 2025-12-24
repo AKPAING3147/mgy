@@ -17,11 +17,14 @@ export default function NewProductPage() {
         description: "",
         price: "",
         category: "",
+        minQuantity: "1",
+        stock: "0",
     });
     const [images, setImages] = useState<string[]>(["", "", "", ""]);
     const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
 
+    // Upload handler
     const handleImageUpload = async (file: File, index: number) => {
         setUploadingIndex(index);
         const formData = new FormData();
@@ -74,14 +77,23 @@ export default function NewProductPage() {
             return;
         }
 
+        const price = parseFloat(form.price);
+        if (isNaN(price) || price <= 0) {
+            toast.error("Please enter a valid positive price");
+            setLoading(false);
+            return;
+        }
+
         try {
             const res = await fetch("/api/products", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     ...form,
-                    price: parseFloat(form.price),
-                    images: validImages,
+                    minQuantity: parseInt(form.minQuantity) || 1,
+                    price: price,
+                    stock: parseInt(form.stock) || 0,
+                    images: validImages, // Send array of images
                 }),
             });
 
@@ -103,7 +115,7 @@ export default function NewProductPage() {
     const uploadedCount = images.filter(img => img.length > 0).length;
 
     return (
-        <div className="min-h-screen bg-stone-50 py-8">
+        <div className="min-h-screen bg-white py-8">
             <Toaster position="top-center" richColors />
             <div className="container mx-auto px-6 max-w-4xl">
                 <Link href="/admin/products" className="text-stone-600 hover:text-primary mb-6 block">
@@ -162,6 +174,31 @@ export default function NewProductPage() {
                                     className="h-11 w-48"
                                 />
                             </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold">Min Quantity *</label>
+                                <Input
+                                    type="number"
+                                    min="1"
+                                    required
+                                    placeholder="1"
+                                    value={form.minQuantity}
+                                    onChange={(e) => setForm({ ...form, minQuantity: e.target.value })}
+                                    className="h-11 w-48"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold">Stock Quantity</label>
+                                <Input
+                                    type="number"
+                                    min="0"
+                                    required
+                                    placeholder="0"
+                                    value={form.stock}
+                                    onChange={(e) => setForm({ ...form, stock: e.target.value })}
+                                    className="h-11 w-48"
+                                />
+                            </div>
+
 
                             {/* Image Upload Section */}
                             <div className="space-y-3">
@@ -176,7 +213,7 @@ export default function NewProductPage() {
                                     {images.map((img, idx) => (
                                         <div key={idx} className="relative">
                                             {img ? (
-                                                <div className="relative h-40 rounded-lg overflow-hidden border-2 border-green-500 shadow-md">
+                                                <div className="relative h-40 rounded-lg overflow-hidden border-2 border-green-500 shadow-md bg-stone-100">
                                                     <img src={img} alt={`Image ${idx + 1}`} className="w-full h-full object-cover" />
                                                     <button
                                                         type="button"
@@ -191,9 +228,9 @@ export default function NewProductPage() {
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <label className={`h-40 rounded-lg border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all ${uploadingIndex === idx
-                                                        ? "border-primary bg-primary/10 animate-pulse"
-                                                        : "border-stone-300 hover:border-primary hover:bg-primary/5"
+                                                <label className={`h-40 rounded-lg border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all bg-white ${uploadingIndex === idx
+                                                    ? "border-primary bg-primary/10 animate-pulse"
+                                                    : "border-stone-300 hover:border-primary hover:bg-primary/5"
                                                     }`}>
                                                     <input
                                                         type="file"
@@ -218,14 +255,14 @@ export default function NewProductPage() {
                                 </div>
 
                                 <p className="text-xs text-muted-foreground">
-                                    Supported formats: JPG, PNG, WebP. Max size: 5MB per image.
+                                    Supported formats: JPG, PNG, WebP. Click inside the box to upload.
                                 </p>
                             </div>
 
                             <div className="flex gap-4 pt-4">
                                 <Button
                                     type="submit"
-                                    className="flex-1 h-12 bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-lg font-semibold"
+                                    className="flex-1 h-12 bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-lg font-semibold text-white shadow-lg"
                                     disabled={loading || uploadedCount === 0}
                                 >
                                     {loading ? "Creating..." : "Create Product"}
@@ -238,6 +275,7 @@ export default function NewProductPage() {
                     </CardContent>
                 </Card>
             </div>
+
         </div>
     );
 }

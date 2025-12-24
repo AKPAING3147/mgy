@@ -1,57 +1,107 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { createOrderSchema, parseAndValidate, stripHtml } from "@/lib/validation";
 
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { cartItems, shipping } = body;
 
-        if (!cartItems || cartItems.length === 0) {
-            return NextResponse.json({ success: false, message: "Cart is empty" }, { status: 400 });
+        // Validate and sanitize input
+        const validation = await parseAndValidate(createOrderSchema, body);
+        if (!validation.success) {
+            console.log(`[SECURITY] Order validation failed: ${validation.errors.join(', ')}`);
+            return NextResponse.json(
+                { success: false, message: "Invalid order data", errors: validation.errors },
+                { status: 400 }
+            );
         }
 
-        // Calculate total
-        const totalAmount = cartItems.reduce((acc: number, item: any) => acc + item.totalPrice, 0);
+        const { cartItems, shipping } = validation.data;
 
-        // Find or Create User by email
-        let user = await prisma.user.findUnique({ where: { email: shipping.email } });
-        if (!user) {
-            user = await prisma.user.create({
+        // Sanitize text inputs
+        const sanitizedShipping = {
+            fullName: stripHtml(shipping.fullName),
+            email: shipping.email.toLowerCase().trim(),
+            phone: shipping.phone.replace(/[^\d\s+\-()]/g, ''),
+            address: stripHtml(shipping.address),
+        };
+
+        // Calculate total securely (verify against stored prices)
+        // Execute in transaction to ensure stock integrity
+        const order = await prisma.$transaction(async (tx) => {
+            let totalAmount = 0;
+
+            for (const item of cartItems) {
+                // Verify product exists and price is correct
+                const product = await tx.product.findUnique({
+                    where: { id: item.product.id }
+                });
+
+                if (!product || product.status !== "ACTIVE") {
+                    throw new Error(`Product not found or unavailable: ${item.product.id}`);
+                }
+
+                // Atomic decrement with stock check
+                const updateResult = await tx.product.updateMany({
+                    where: {
+                        id: product.id,
+                        stock: { gte: item.quantity }
+                    },
+                    data: {
+                        stock: { decrement: item.quantity }
+                    }
+                });
+
+                if (updateResult.count === 0) {
+                    throw new Error(`Insufficient stock for ${product.name}. Requesting ${item.quantity}, but stock is likely insufficient.`);
+                }
+
+                // Use stored price
+                totalAmount += product.price * item.quantity;
+            }
+
+            // Find or Create User
+            let user = await tx.user.findUnique({ where: { email: sanitizedShipping.email } });
+            if (!user) {
+                user = await tx.user.create({
+                    data: {
+                        email: sanitizedShipping.email,
+                        password: "$2a$10$GuestPasswordHashPlaceholder",
+                        name: sanitizedShipping.fullName,
+                        role: "USER"
+                    }
+                });
+            }
+
+            // Create Order
+            return await tx.order.create({
                 data: {
-                    email: shipping.email,
-                    password: "$2a$10$GuestPasswordHashPlaceholder",
-                    name: shipping.fullName,
-                    role: "USER"
+                    userId: user.id,
+                    totalAmount,
+                    fullName: sanitizedShipping.fullName,
+                    email: sanitizedShipping.email,
+                    phone: sanitizedShipping.phone,
+                    address: sanitizedShipping.address,
+                    items: {
+                        create: cartItems.map((item) => ({
+                            productId: item.product.id,
+                            quantity: item.quantity,
+                            customization: JSON.stringify(item.customization || {})
+                        }))
+                    }
                 }
             });
-        }
-
-        // Create Order
-        const order = await prisma.order.create({
-            data: {
-                userId: user.id,
-                totalAmount,
-                fullName: shipping.fullName,
-                email: shipping.email,
-                phone: shipping.phone,
-                address: shipping.address,
-                items: {
-                    create: cartItems.map((item: any) => ({
-                        productId: item.product.id,
-                        quantity: item.quantity,
-                        customization: JSON.stringify(item.customization || item.notes || {})
-                    }))
-                }
-            }
         });
+
+        console.log(`[ORDER] New order created: ${order.id} by ${sanitizedShipping.email}`);
 
         return NextResponse.json({ success: true, orderId: order.id });
     } catch (error) {
-        console.error("Order creation error:", error);
-        return NextResponse.json({
-            success: false,
-            message: "Order creation failed",
-            error: error instanceof Error ? error.message : "Unknown error"
-        }, { status: 500 });
+        console.error("[ERROR] Order creation failed:", error);
+        return NextResponse.json(
+            { success: false, message: "Order creation failed" },
+            { status: 500 }
+        );
     }
 }
+

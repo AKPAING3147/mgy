@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Package, Clock, CheckCircle, Truck, Bookmark, X, Heart, Copy, Check } from "lucide-react";
+import { Search, Package, Clock, CheckCircle, Truck, Bookmark, X, Heart, Copy, Check, Printer } from "lucide-react";
 import Link from "next/link";
+import { useLanguage } from "@/contexts/LanguageContext";
+import OrderTimeline from "@/components/OrderTimeline";
 
 interface Order {
     id: string;
@@ -24,6 +26,7 @@ interface SavedOrder {
 }
 
 export default function TrackOrderPage() {
+    const { t } = useLanguage();
     const [orderId, setOrderId] = useState("");
     const [order, setOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState(false);
@@ -118,14 +121,7 @@ export default function TrackOrderPage() {
     };
 
     const getStatusText = (status: string) => {
-        switch (status) {
-            case "PENDING_PAYMENT": return "Awaiting Payment";
-            case "PAYMENT_REVIEW": return "Payment Under Review";
-            case "APPROVED": return "Approved";
-            case "COMPLETED": return "Order Completed";
-            case "SHIPPED": return "Shipped";
-            default: return status.replace("_", " ");
-        }
+        return status.replace("_", " ");
     };
 
     return (
@@ -134,7 +130,7 @@ export default function TrackOrderPage() {
 
             <div className="pt-24 pb-12">
                 <div className="container mx-auto px-4 max-w-4xl">
-                    <h1 className="text-4xl font-bold text-center mb-2">Track Your Order</h1>
+                    <h1 className="text-4xl font-bold text-center mb-2">{t("nav_track_order")}</h1>
                     <p className="text-center text-muted-foreground mb-8">Enter your order ID or view your recent orders below</p>
 
                     {/* Search Box */}
@@ -197,6 +193,11 @@ export default function TrackOrderPage() {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="pt-6">
+                                {/* Timeline Visualization */}
+                                <div className="mb-8 px-2 md:px-8">
+                                    <OrderTimeline status={order.status} />
+                                </div>
+
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                                     <div className="bg-stone-50 p-4 rounded-lg">
                                         <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Customer</p>
@@ -215,6 +216,17 @@ export default function TrackOrderPage() {
                                         <p className="font-semibold">{new Date(order.createdAt).toLocaleDateString()}</p>
                                     </div>
                                 </div>
+
+                                {(order.paymentStatus === "APPROVED" || order.status === "COMPLETED" || order.status === "SHIPPED") && (
+                                    <div className="mt-4 flex justify-end">
+                                        <Link href={`/invoice/${order.id}`} target="_blank">
+                                            <Button variant="outline" className="gap-2 border-primary text-primary hover:bg-primary hover:text-white">
+                                                <Printer className="w-4 h-4" />
+                                                View Invoice
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                )}
 
                                 {order.status === "PENDING_PAYMENT" && (
                                     <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mt-6">

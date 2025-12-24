@@ -12,7 +12,7 @@
    - Click the **upload area** (has a cloud icon)
    - Select your image file (PNG, JPG, WEBP)
    - **Preview appears** immediately
-   - Image is stored in `/public/products/` folder
+   - Image is securely uploaded to Cloudinary
 
 3. **Fill Other Details**
    - Product Name
@@ -43,9 +43,9 @@
 ## 📸 **Where Images Are Stored:**
 
 ### **Uploaded Images:**
-- **Location**: `public/products/`
-- **URL Format**: `/products/1234567890-yourimage.jpg`
-- **Filename**: Timestamped to avoid conflicts
+- **Location**: Cloudinary (Cloud Storage)
+- **URL Format**: `https://res.cloudinary.com/...`
+- **Filename**: Managed by Cloudinary
 
 ### **External URLs:**
 - Stored as-is in database
@@ -88,7 +88,7 @@
 ## 🐛 **Troubleshooting:**
 
 **Image not showing?**
-- Check if file uploaded successfully (check `public/products/` folder)
+- Check if file uploaded successfully (check Cloudinary Dashboard)
 - Verify image URL is accessible
 - Make sure format is supported (JPG/PNG/WEBP)
 

@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -27,6 +27,9 @@ model Product {
   price       Float
   category    String
   images      String      // JSON string of image URLs
+  minQuantity Int         @default(1)
+  stock       Int         @default(0)
+  status      String      @default("ACTIVE") // ACTIVE, ARCHIVED
   createdAt   DateTime    @default(now())
   orderItems  OrderItem[]
 }

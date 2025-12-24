@@ -1,230 +1,203 @@
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Package, Clock, Users, CheckCircle, Truck } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { revalidatePath } from "next/cache";
 import OrderActionsClient from "@/components/admin/OrderActions";
-
-async function checkAuth() {
-    const cookieStore = await cookies();
-    const session = cookieStore.get('admin_session');
-    if (!session) redirect('/admin/login');
-}
-
-async function approvePayment(formData: FormData) {
-    "use server";
-    const orderId = formData.get("orderId") as string;
-    await prisma.order.update({
-        where: { id: orderId },
-        data: { status: "APPROVED", paymentStatus: "VERIFIED" }
-    });
-    revalidatePath('/admin');
-}
-
-async function markComplete(formData: FormData) {
-    "use server";
-    const orderId = formData.get("orderId") as string;
-    await prisma.order.update({
-        where: { id: orderId },
-        data: { status: "COMPLETED" }
-    });
-    revalidatePath('/admin');
-}
-
-async function deleteOrder(formData: FormData) {
-    "use server";
-    const orderId = formData.get("orderId") as string;
-    // Delete order items first, then order
-    await prisma.orderItem.deleteMany({ where: { orderId } });
-    await prisma.order.delete({ where: { id: orderId } });
-    revalidatePath('/admin');
-}
-
-async function logout() {
-    "use server";
-    const cookieStore = await cookies();
-    cookieStore.delete('admin_session');
-    redirect('/admin/login');
-}
+import { Package, Users, DollarSign, CheckCircle, Clock, AlertCircle } from "lucide-react";
+import AdminCharts from "@/components/admin/AdminCharts";
+import { getDashboardStats } from "@/lib/actions";
+import LogoutButton from "@/components/admin/LogoutButton";
 
 export default async function AdminDashboard() {
-    await checkAuth();
+    const productsCount = await prisma.product.count();
+    const ordersCount = await prisma.order.count();
+    const usersCount = await prisma.user.count({ where: { role: "USER" } });
 
-    const [orders, stats] = await Promise.all([
-        prisma.order.findMany({
-            orderBy: { createdAt: 'desc' },
-            take: 20,
-            include: { items: true }
-        }),
-        {
-            totalRevenue: await prisma.order.aggregate({ _sum: { totalAmount: true } }),
-            totalOrders: await prisma.order.count(),
-            pendingReview: await prisma.order.count({ where: { status: "PAYMENT_REVIEW" } }),
-            totalCustomers: await prisma.user.count({ where: { role: "USER" } }),
-            completedOrders: await prisma.order.count({ where: { status: "COMPLETED" } }),
+    // Calculate revenue from COMPLETED orders
+    const revenueResult = await prisma.order.aggregate({
+        _sum: { totalAmount: true },
+        where: { status: "COMPLETED" }
+    });
+    const revenue = revenueResult._sum.totalAmount || 0;
+
+    // Pending orders count
+    const pendingOrders = await prisma.order.count({
+        where: { status: { in: ["PENDING_PAYMENT", "PAYMENT_REVIEW"] } }
+    });
+
+    const orders = await prisma.order.findMany({
+        where: { status: { not: "DELETED" } },
+        orderBy: { createdAt: "desc" },
+        take: 20,
+        include: { user: true }
+    });
+
+    // Server Actions
+    async function approvePayment(formData: FormData) {
+        "use server";
+        const orderId = formData.get("orderId") as string;
+        await prisma.order.update({
+            where: { id: orderId },
+            data: {
+                status: "APPROVED",
+                paymentStatus: "APPROVED"
+            }
+        });
+        revalidatePath("/admin");
+    }
+
+    async function markComplete(formData: FormData) {
+        "use server";
+        const orderId = formData.get("orderId") as string;
+        await prisma.order.update({
+            where: { id: orderId },
+            data: { status: "COMPLETED" }
+        });
+        revalidatePath("/admin");
+    }
+
+    async function deleteOrder(formData: FormData) {
+        "use server";
+        const orderId = formData.get("orderId") as string;
+        // Delete items first
+        await prisma.order.update({
+            where: { id: orderId },
+            data: { status: "DELETED" }
+        });
+        revalidatePath("/admin");
+    }
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case "PENDING_PAYMENT": return "bg-yellow-100 text-yellow-800";
+            case "PAYMENT_REVIEW": return "bg-blue-100 text-blue-800";
+            case "APPROVED": return "bg-green-100 text-green-800";
+            case "COMPLETED": return "bg-emerald-100 text-emerald-800";
+            default: return "bg-gray-100 text-gray-800";
         }
-    ]);
+    };
+
+    const stats = await getDashboardStats();
 
     return (
-        <div className="min-h-screen bg-stone-100">
-            {/* Header */}
-            <header className="bg-gradient-to-r from-primary to-secondary text-white py-4 px-6 shadow-lg sticky top-0 z-50">
-                <div className="container mx-auto flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                            <span className="font-bold text-lg">M</span>
-                        </div>
-                        <div>
-                            <h1 className="text-xl font-bold">MGY OFFSET Admin</h1>
-                            <p className="text-xs text-white/80">Dashboard</p>
-                        </div>
+        <div className="min-h-screen bg-white p-8 pt-24">
+            <div className="container mx-auto">
+                <div className="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 className="text-3xl font-bold text-stone-900">Admin Dashboard</h1>
+                        <p className="text-stone-500">Manage your MGY OFFSET business</p>
                     </div>
-                    <div className="flex gap-4 items-center">
-                        <Link href="/admin/products" className="text-sm hover:underline">Products</Link>
-                        <Link href="/" className="text-sm hover:underline">View Site</Link>
-                        <form action={logout}>
-                            <button className="text-sm bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors">
-                                Logout
-                            </button>
-                        </form>
+                    <div className="flex gap-4">
+                        <Link href="/admin/products/new">
+                            <Button className="bg-primary hover:bg-primary/90 text-white shadow-md">
+                                + Add New Product
+                            </Button>
+                        </Link>
+                        <LogoutButton />
                     </div>
                 </div>
-            </header>
 
-            <div className="container mx-auto p-6">
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-                    <Card className="bg-white shadow-md border-l-4 border-l-green-500">
-                        <CardContent className="pt-4">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-xs text-muted-foreground uppercase">Total Revenue</p>
-                                    <p className="text-2xl font-bold text-green-600">${(stats.totalRevenue._sum.totalAmount || 0).toFixed(0)}</p>
-                                </div>
-                                <DollarSign className="w-8 h-8 text-green-500" />
-                            </div>
+                {/* Stats Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <Card className="shadow-md border-l-4 border-l-primary">
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-sm font-medium text-stone-500">Total Revenue</CardTitle>
+                            <DollarSign className="w-4 h-4 text-primary" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">${stats.totalRevenue.toFixed(2)}</div>
+                            <p className="text-xs text-muted-foreground">Lifetime earnings</p>
                         </CardContent>
                     </Card>
-
-                    <Card className="bg-white shadow-md border-l-4 border-l-blue-500">
-                        <CardContent className="pt-4">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-xs text-muted-foreground uppercase">Total Orders</p>
-                                    <p className="text-2xl font-bold text-blue-600">{stats.totalOrders}</p>
-                                </div>
-                                <Package className="w-8 h-8 text-blue-500" />
-                            </div>
+                    <Card className="shadow-md border-l-4 border-l-secondary">
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-sm font-medium text-stone-500">Total Orders</CardTitle>
+                            <Package className="w-4 h-4 text-secondary" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{stats.ordersCount}</div>
+                            <p className="text-xs text-muted-foreground">{pendingOrders} pending review</p>
                         </CardContent>
                     </Card>
-
-                    <Card className="bg-white shadow-md border-l-4 border-l-yellow-500">
-                        <CardContent className="pt-4">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-xs text-muted-foreground uppercase">Pending Review</p>
-                                    <p className="text-2xl font-bold text-yellow-600">{stats.pendingReview}</p>
-                                </div>
-                                <Clock className="w-8 h-8 text-yellow-500" />
-                            </div>
+                    <Card className="shadow-md border-l-4 border-l-blue-500">
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-sm font-medium text-stone-500">Customers</CardTitle>
+                            <Users className="w-4 h-4 text-blue-500" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{usersCount}</div>
+                            <p className="text-xs text-muted-foreground">Registered accounts</p>
                         </CardContent>
                     </Card>
-
-                    <Card className="bg-white shadow-md border-l-4 border-l-emerald-500">
-                        <CardContent className="pt-4">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-xs text-muted-foreground uppercase">Completed</p>
-                                    <p className="text-2xl font-bold text-emerald-600">{stats.completedOrders}</p>
-                                </div>
-                                <CheckCircle className="w-8 h-8 text-emerald-500" />
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="bg-white shadow-md border-l-4 border-l-purple-500">
-                        <CardContent className="pt-4">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-xs text-muted-foreground uppercase">Customers</p>
-                                    <p className="text-2xl font-bold text-purple-600">{stats.totalCustomers}</p>
-                                </div>
-                                <Users className="w-8 h-8 text-purple-500" />
-                            </div>
+                    <Card className="shadow-md border-l-4 border-l-stone-500">
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-sm font-medium text-stone-500">Products</CardTitle>
+                            <CheckCircle className="w-4 h-4 text-stone-500" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{productsCount}</div>
+                            <p className="text-xs text-muted-foreground">Active items</p>
                         </CardContent>
                     </Card>
                 </div>
 
-                {/* Orders Table */}
+                {/* VISUAL CHARTS */}
+                <AdminCharts stats={stats} />
+
+                {/* Recent Orders */}
                 <Card className="shadow-lg">
-                    <CardHeader className="bg-gradient-to-r from-stone-50 to-white border-b">
-                        <CardTitle className="flex items-center gap-2">
-                            <Package className="w-5 h-5" />
-                            Orders Management
-                        </CardTitle>
+                    <CardHeader className="border-b bg-white">
+                        <CardTitle>Recent Orders</CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
                         <div className="overflow-x-auto">
                             <table className="w-full">
-                                <thead className="bg-stone-50 border-b">
+                                <thead className="bg-white border-b text-stone-600 text-sm uppercase">
                                     <tr>
-                                        <th className="text-left p-4 text-sm font-semibold">Order ID</th>
-                                        <th className="text-left p-4 text-sm font-semibold">Customer</th>
-                                        <th className="text-left p-4 text-sm font-semibold">Amount</th>
-                                        <th className="text-left p-4 text-sm font-semibold">Status</th>
-                                        <th className="text-left p-4 text-sm font-semibold">Date</th>
-                                        <th className="text-right p-4 text-sm font-semibold">Actions</th>
+                                        <th className="py-4 px-6 text-left">Order ID</th>
+                                        <th className="py-4 px-6 text-left">Customer</th>
+                                        <th className="py-4 px-6 text-left">Amount</th>
+                                        <th className="py-4 px-6 text-left">Status</th>
+                                        <th className="py-4 px-6 text-left">Date</th>
+                                        <th className="py-4 px-6 text-right">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    {orders.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={6} className="p-8 text-center text-muted-foreground">
-                                                No orders yet
+                                <tbody className="divide-y divide-stone-100">
+                                    {orders.map((order) => (
+                                        <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                                            <td className="py-4 px-6 font-mono text-sm">{order.id.slice(0, 8)}...</td>
+                                            <td className="py-4 px-6">
+                                                <div className="font-medium">{order.fullName}</div>
+                                                <div className="text-xs text-stone-500">{order.email}</div>
+                                            </td>
+                                            <td className="py-4 px-6 font-medium">${order.totalAmount.toFixed(2)}</td>
+                                            <td className="py-4 px-6">
+                                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(order.status)}`}>
+                                                    {order.status.replace("_", " ")}
+                                                </span>
+                                            </td>
+                                            <td className="py-4 px-6 text-sm text-stone-500">
+                                                {new Date(order.createdAt).toLocaleDateString()}
+                                            </td>
+                                            <td className="py-4 px-6 text-right">
+                                                <OrderActionsClient
+                                                    order={order}
+                                                    approveAction={approvePayment}
+                                                    completeAction={markComplete}
+                                                    deleteAction={deleteOrder}
+                                                />
                                             </td>
                                         </tr>
-                                    ) : (
-                                        orders.map((order) => (
-                                            <tr key={order.id} className="border-b hover:bg-stone-50 transition-colors">
-                                                <td className="p-4">
-                                                    <code className="text-xs bg-stone-100 px-2 py-1 rounded">{order.id.substring(0, 12)}...</code>
-                                                </td>
-                                                <td className="p-4">
-                                                    <p className="font-medium">{order.fullName}</p>
-                                                    <p className="text-xs text-muted-foreground">{order.email}</p>
-                                                </td>
-                                                <td className="p-4">
-                                                    <span className="font-bold text-primary">${order.totalAmount.toFixed(2)}</span>
-                                                </td>
-                                                <td className="p-4">
-                                                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${order.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700' :
-                                                            order.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
-                                                                order.status === 'PAYMENT_REVIEW' ? 'bg-yellow-100 text-yellow-700' :
-                                                                    order.status === 'SHIPPED' ? 'bg-blue-100 text-blue-700' :
-                                                                        'bg-stone-100 text-stone-700'
-                                                        }`}>
-                                                        {order.status.replace('_', ' ')}
-                                                    </span>
-                                                </td>
-                                                <td className="p-4 text-sm text-muted-foreground">
-                                                    {new Date(order.createdAt).toLocaleDateString()}
-                                                </td>
-                                                <td className="p-4">
-                                                    <OrderActionsClient
-                                                        order={order}
-                                                        approveAction={approvePayment}
-                                                        completeAction={markComplete}
-                                                        deleteAction={deleteOrder}
-                                                    />
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
+                                    ))}
                                 </tbody>
                             </table>
                         </div>
+                        {orders.length === 0 && (
+                            <div className="text-center py-12 text-stone-500">
+                                No orders found.
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>

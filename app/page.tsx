@@ -12,13 +12,13 @@ export default async function Home() {
     <main className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero Banner - Responsive */}
+      {/* Hero Banner - Your MGY OFFSET Image */}
       <div className="pt-16">
-        <div className="relative w-full">
+        <div className="w-full max-w-[1600px] mx-auto bg-stone-100/50">
           <img
             src="/hero-banner.jpg"
             alt="MGY OFFSET - Printing Services"
-            className="w-full h-auto object-cover"
+            className="w-full h-auto block"
           />
         </div>
       </div>

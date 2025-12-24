@@ -21,7 +21,7 @@ export default async function AdminProducts() {
     });
 
     return (
-        <div className="min-h-screen bg-secondary/10 p-8">
+        <div className="min-h-screen bg-white p-8">
             <Toaster position="top-center" richColors />
             <div className="max-w-5xl mx-auto">
                 <div className="mb-8">
@@ -41,7 +41,8 @@ export default async function AdminProducts() {
                         <div className="col-span-4">Product Name</div>
                         <div className="col-span-2">Category</div>
                         <div className="col-span-2">Price</div>
-                        <div className="col-span-4 text-right">Actions</div>
+                        <div className="col-span-2">Stock</div>
+                        <div className="col-span-2 text-right">Actions</div>
                     </div>
 
                     {products.length === 0 ? (

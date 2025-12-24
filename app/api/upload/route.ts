@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 import { prisma } from "@/lib/prisma";
+import cloudinary from "@/lib/cloudinary";
 
 export async function POST(req: NextRequest) {
     try {
@@ -13,35 +12,33 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ success: false, message: "Missing file or orderId" }, { status: 400 });
         }
 
+        // Convert file to base64 for Cloudinary upload
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
+        const base64 = buffer.toString('base64');
+        const dataURI = `data:${file.type};base64,${base64}`;
 
-        // Save to public/uploads
-        const uploadDir = path.join(process.cwd(), "public", "uploads");
+        // Upload to Cloudinary
+        const uploadResult = await cloudinary.uploader.upload(dataURI, {
+            folder: 'wedding-invitations/payment-slips',
+            public_id: `${orderId}-${Date.now()}`,
+            resource_type: 'image',
+        });
 
-        try {
-            await mkdir(uploadDir, { recursive: true });
-        } catch (e) {
-            // ignore if exists
-        }
+        const cloudinaryUrl = uploadResult.secure_url;
 
-        const filename = `${orderId}-${Date.now()}-${file.name.replace(/\s/g, '_')}`;
-        const filepath = path.join(uploadDir, filename);
-
-        await writeFile(filepath, buffer);
-
-        // Update DB
+        // Update DB with Cloudinary URL
         await prisma.order.update({
             where: { id: orderId },
             data: {
-                paymentSlipUrl: `/uploads/${filename}`,
+                paymentSlipUrl: cloudinaryUrl,
                 paymentStatus: "REVIEW",
                 status: "PAYMENT_REVIEW",
                 updatedAt: new Date()
             }
         });
 
-        return NextResponse.json({ success: true, url: `/uploads/${filename}` });
+        return NextResponse.json({ success: true, url: cloudinaryUrl });
     } catch (error) {
         console.error("Upload error:", error);
         return NextResponse.json({ success: false, message: "Upload failed" }, { status: 500 });

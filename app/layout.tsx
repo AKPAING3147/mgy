@@ -3,6 +3,7 @@ import { Playfair_Display, Lato } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import ChatBot from "@/components/ChatBot";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -19,7 +20,7 @@ const lato = Lato({
 
 export const metadata: Metadata = {
   title: "MGY OFFSET | Premium Printing Services",
-  description: "Premium printing services for wedding invitations, business cards, and more.",
+  description: "High-quality custom printing for all your business and personal needs.",
 };
 
 export default function RootLayout({
@@ -36,8 +37,11 @@ export default function RootLayout({
       )}>
         <LanguageProvider>
           {children}
+          <ChatBot />
         </LanguageProvider>
       </body>
     </html>
   );
 }
+
+

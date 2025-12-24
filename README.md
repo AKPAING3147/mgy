@@ -1,36 +1,181 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 💍 Wedding Invitation E-Commerce Website
 
-## Getting Started
+A full-stack e-commerce web application for selling **custom wedding invitation cards**, featuring **user customization**, **manual payment via slip upload**, and an **admin dashboard for verification and order management**.
 
-First, run the development server:
+---
+
+## ✨ Features
+
+### 👰 User Side
+
+* Browse wedding invitation card collections
+* Categories: Traditional, Modern, Floral, Minimal, Luxury
+* Customize invitation details:
+
+  * Bride & Groom names
+  * Wedding date & time
+  * Venue
+  * Language & custom message
+  * Quantity, size, paper type
+* Live invitation preview
+* Add to cart & checkout
+* Upload payment slip (bank transfer / mobile banking)
+* Track order & payment status
+
+### 🧑‍💼 Admin Side
+
+* Secure admin login
+* Dashboard overview (orders & payments)
+* Manage products (add / edit / delete)
+* View full user customization data
+* View & verify uploaded payment slips
+* Approve or reject payments with notes
+* Update order status (Paid, Processing, Printing, Shipped)
+
+---
+
+## 💳 Payment System
+
+* Manual payment (no payment gateway)
+* Users upload **payment slip images** (JPG / PNG)
+* Admin verifies payment before order processing
+
+---
+
+## 🛠️ Tech Stack
+
+**Frontend**
+
+* Next.js (App Router)
+* Tailwind CSS
+* Shadcn UI
+
+**Backend**
+
+* Next.js API Routes
+* Prisma ORM
+
+**Database**
+
+* PostgreSQL
+
+**Authentication**
+
+* JWT / NextAuth
+
+**Image Upload**
+
+* Cloudinary / S3 (recommended)
+
+**Deployment**
+
+* Vercel
+
+---
+
+## 📁 Project Structure
+
+```
+app/
+ ├─ (auth)/
+ ├─ (shop)/
+ ├─ cart/
+ ├─ checkout/
+ ├─ payment/
+ ├─ orders/
+ ├─ admin/
+ ├─ api/
+ └─ layout.tsx
+
+components/
+lib/
+prisma/
+public/
+styles/
+```
+
+---
+
+## 🧩 Database Models (Overview)
+
+* **User** – customer & admin roles
+* **Order** – order details & customization data
+* **Payment** – payment slip & verification status
+
+---
+
+## 🚀 Getting Started
+
+### 1️⃣ Clone the Repository
+
+```bash
+git clone https://github.com/your-username/your-repo-name.git
+cd your-repo-name
+```
+
+### 2️⃣ Install Dependencies
+
+```bash
+npm install
+```
+
+### 3️⃣ Environment Variables
+
+Create a `.env` file:
+
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/dbname
+NEXTAUTH_SECRET=your_secret
+```
+
+### 4️⃣ Prisma Setup
+
+```bash
+npx prisma generate
+npx prisma migrate dev
+```
+
+### 5️⃣ Run the App
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🔐 Admin Access
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+* Admin users have role `ADMIN`
+* Admin routes are protected via middleware
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 📦 Deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Deploy easily using **Vercel**:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Push project to GitHub
+2. Import repository in Vercel
+3. Add environment variables
+4. Deploy 🎉
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🧠 Future Improvements
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+* Online payment gateway integration
+* Email notifications
+* Order invoice PDF download
+* Multi-language support
+
+---
+
+## 👤 Author
+
+**Aung Kyaw Paing (AKP)**
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.

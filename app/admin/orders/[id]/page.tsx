@@ -50,7 +50,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
     if (!order) notFound();
 
     return (
-        <div className="min-h-screen bg-stone-50 py-8">
+        <div className="min-h-screen bg-white py-8">
             <div className="container mx-auto px-6">
                 <Link href="/admin" className="inline-flex items-center gap-2 text-stone-600 hover:text-stone-900 mb-6">
                     <ArrowLeft className="w-4 h-4" />
@@ -96,17 +96,44 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                                         {order.items.map((item: any) => {
                                             const customization = JSON.parse(item.customization);
                                             return (
-                                                <div key={item.id} className="bg-stone-50 p-4 rounded-lg">
+                                                <div key={item.id} className="bg-white border border-stone-200 p-4 rounded-lg">
                                                     <div className="flex justify-between mb-2">
                                                         <span className="font-medium">{item.product.name}</span>
                                                         <span className="text-stone-600">Qty: {item.quantity}</span>
                                                     </div>
-                                                    <div className="text-sm text-stone-600 space-y-1">
-                                                        <p>Bride: {customization.brideName}</p>
-                                                        <p>Groom: {customization.groomName}</p>
-                                                        <p>Date: {customization.date}</p>
-                                                        <p>Venue: {customization.venue}</p>
+
+                                                    {/* Product Images Slider/Grid */}
+                                                    <div className="flex gap-2 mt-2 overflow-x-auto pb-2">
+                                                        {(() => {
+                                                            try {
+                                                                const images = JSON.parse(item.product.images);
+                                                                return Array.isArray(images) ? images.map((img: string, idx: number) => (
+                                                                    <img
+                                                                        key={idx}
+                                                                        src={img}
+                                                                        alt={`${item.product.name} ${idx + 1}`}
+                                                                        className="w-16 h-16 object-cover rounded-md border border-stone-200 flex-shrink-0"
+                                                                    />
+                                                                )) : null;
+                                                            } catch (e) {
+                                                                return item.product.images ? (
+                                                                    <img
+                                                                        src={item.product.images}
+                                                                        alt={item.product.name}
+                                                                        className="w-16 h-16 object-cover rounded-md border border-stone-200 flex-shrink-0"
+                                                                    />
+                                                                ) : null;
+                                                            }
+                                                        })()}
                                                     </div>
+                                                    {customization.notes && (
+                                                        <div className="mt-2">
+                                                            <span className="font-semibold text-xs uppercase tracking-wider text-stone-500">Customer Notes:</span>
+                                                            <p className="bg-white p-3 rounded border border-stone-200 text-stone-800 whitespace-pre-wrap mt-1 text-sm">
+                                                                {customization.notes}
+                                                            </p>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             );
                                         })}
@@ -134,9 +161,9 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                                     <label className="text-sm font-semibold text-stone-700">Order Status</label>
                                     <div className="mt-2">
                                         <span className={`inline-flex px-3 py-1 rounded-full text-sm font-semibold ${order.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
-                                                order.status === 'PAYMENT_REVIEW' ? 'bg-amber-100 text-amber-800' :
-                                                    order.status === 'SHIPPED' ? 'bg-blue-100 text-blue-800' :
-                                                        'bg-stone-100 text-stone-800'
+                                            order.status === 'PAYMENT_REVIEW' ? 'bg-amber-100 text-amber-800' :
+                                                order.status === 'SHIPPED' ? 'bg-blue-100 text-blue-800' :
+                                                    'bg-stone-100 text-stone-800'
                                             }`}>
                                             {order.status.replace('_', ' ')}
                                         </span>
