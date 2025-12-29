@@ -9,6 +9,10 @@ import AdminCharts from "@/components/admin/AdminCharts";
 import { getDashboardStats } from "@/lib/actions";
 import LogoutButton from "@/components/admin/LogoutButton";
 
+// Force dynamic rendering - don't pre-render at build time
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function AdminDashboard() {
     const productsCount = await prisma.product.count();
     const ordersCount = await prisma.order.count();
