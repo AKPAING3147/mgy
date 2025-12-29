@@ -183,8 +183,6 @@ export async function middleware(request: NextRequest) {
     // ========================================
     const adminApiRoutes = [
         '/api/products',
-        '/api/orders',
-        '/api/upload',
         '/api/upload-product-image',
     ];
 
@@ -192,7 +190,11 @@ export async function middleware(request: NextRequest) {
         path.startsWith(route) && request.method !== 'GET'
     );
 
-    if (isAdminApiRoute) {
+    // Special handling for /api/orders - allow POST (guest checkout), protect PUT/PATCH/DELETE
+    const isProtectedOrderRoute = path.startsWith('/api/orders') &&
+        ['PUT', 'PATCH', 'DELETE'].includes(request.method);
+
+    if (isAdminApiRoute || isProtectedOrderRoute) {
         const adminSession = request.cookies.get('admin_session')?.value;
 
         if (!adminSession || !(await verifyAdminToken(adminSession))) {
