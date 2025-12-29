@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X, Heart, User } from "lucide-react";
+import { Menu, X, Package } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
@@ -22,7 +22,6 @@ export default function Navbar() {
         <nav className="fixed top-0 w-full z-50 bg-white shadow-md">
             <div className="container mx-auto px-4 py-3 flex justify-between items-center">
                 {/* Logo */}
-                {/* Logo */}
                 <Link href="/" className="flex items-center gap-2">
                     <img src="/logo.jpg" alt="MGY OFFSET" className="h-16 w-auto object-contain" />
                 </Link>
@@ -38,12 +37,6 @@ export default function Navbar() {
                             {link.label}
                         </Link>
                     ))}
-                    <Link href="/track-order" className="relative" title="Favorites & Orders">
-                        <Heart className="w-5 h-5 text-stone-600 hover:text-primary transition-colors" />
-                    </Link>
-                    <Link href="/account" className="relative" title="My Account">
-                        <User className="w-5 h-5 text-stone-600 hover:text-primary transition-colors" />
-                    </Link>
                     <LanguageSwitcher />
                 </div>
 
@@ -79,28 +72,6 @@ export default function Navbar() {
                                     {link.label}
                                 </Link>
                             ))}
-
-                            {/* Divider */}
-                            <div className="border-t border-stone-200 my-2"></div>
-
-                            {/* Mobile-only links */}
-                            <Link
-                                href="/account"
-                                className="flex items-center gap-2 py-2 text-stone-600 hover:text-primary"
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                <User className="w-4 h-4" />
-                                <span>My Account / Login</span>
-                            </Link>
-
-                            <Link
-                                href="/track-order"
-                                className="flex items-center gap-2 py-2 text-stone-600 hover:text-primary"
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                <Heart className="w-4 h-4" />
-                                <span>Track Orders</span>
-                            </Link>
                         </div>
                     </motion.div>
                 )}
