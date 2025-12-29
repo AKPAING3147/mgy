@@ -166,7 +166,7 @@ export default async function Home() {
             <div>
               <h3 className="text-2xl font-bold text-white mb-4">MGY OFFSET</h3>
               <p className="text-stone-400">
-                Creating beautiful memories through premium printing services since 2020.
+                Creating beautiful memories through premium printing services since 1958.
               </p>
             </div>
             <div>
