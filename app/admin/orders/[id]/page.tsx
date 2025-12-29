@@ -142,12 +142,97 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                                                             );
                                                         })()}
                                                     </div>
-                                                    {customization.notes && (
-                                                        <div className="mt-2">
-                                                            <span className="font-semibold text-xs uppercase tracking-wider text-stone-500">Customer Notes:</span>
-                                                            <p className="bg-white p-3 rounded border border-stone-200 text-stone-800 whitespace-pre-wrap mt-1 text-sm">
-                                                                {customization.notes}
-                                                            </p>
+
+                                                    {/* Customization Template */}
+                                                    {customization && Object.keys(customization).length > 0 && (
+                                                        <div className="mt-4 bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-lg border-2 border-amber-200">
+                                                            <h4 className="font-bold text-amber-900 mb-3 flex items-center gap-2">
+                                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                                </svg>
+                                                                Customer Order Template
+                                                            </h4>
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                                                {/* Wedding Invitation Fields */}
+                                                                {customization.brideName && (
+                                                                    <div className="bg-white p-3 rounded-md shadow-sm">
+                                                                        <span className="font-semibold text-stone-700 block mb-1">👰 Bride Name:</span>
+                                                                        <span className="text-stone-900 font-medium">{customization.brideName}</span>
+                                                                    </div>
+                                                                )}
+                                                                {customization.groomName && (
+                                                                    <div className="bg-white p-3 rounded-md shadow-sm">
+                                                                        <span className="font-semibold text-stone-700 block mb-1">🤵 Groom Name:</span>
+                                                                        <span className="text-stone-900 font-medium">{customization.groomName}</span>
+                                                                    </div>
+                                                                )}
+                                                                {customization.weddingDate && (
+                                                                    <div className="bg-white p-3 rounded-md shadow-sm">
+                                                                        <span className="font-semibold text-stone-700 block mb-1">📅 Wedding Date:</span>
+                                                                        <span className="text-stone-900">{new Date(customization.weddingDate).toLocaleDateString()}</span>
+                                                                    </div>
+                                                                )}
+                                                                {customization.weddingTime && (
+                                                                    <div className="bg-white p-3 rounded-md shadow-sm">
+                                                                        <span className="font-semibold text-stone-700 block mb-1">🕐 Time:</span>
+                                                                        <span className="text-stone-900">{customization.weddingTime}</span>
+                                                                    </div>
+                                                                )}
+                                                                {customization.venue && (
+                                                                    <div className="bg-white p-3 rounded-md shadow-sm md:col-span-2">
+                                                                        <span className="font-semibold text-stone-700 block mb-1">📍 Venue:</span>
+                                                                        <span className="text-stone-900">{customization.venue}</span>
+                                                                    </div>
+                                                                )}
+
+                                                                {/* Cloth Printing Fields */}
+                                                                {customization.garmentType && (
+                                                                    <div className="bg-white p-3 rounded-md shadow-sm">
+                                                                        <span className="font-semibold text-stone-700 block mb-1">👕 Garment Type:</span>
+                                                                        <span className="text-stone-900">{customization.garmentType}</span>
+                                                                    </div>
+                                                                )}
+                                                                {customization.size && (
+                                                                    <div className="bg-white p-3 rounded-md shadow-sm">
+                                                                        <span className="font-semibold text-stone-700 block mb-1">📏 Size:</span>
+                                                                        <span className="text-stone-900">{customization.size}</span>
+                                                                    </div>
+                                                                )}
+                                                                {customization.color && (
+                                                                    <div className="bg-white p-3 rounded-md shadow-sm">
+                                                                        <span className="font-semibold text-stone-700 block mb-1">🎨 Color:</span>
+                                                                        <span className="text-stone-900">{customization.color}</span>
+                                                                    </div>
+                                                                )}
+
+                                                                {/* Design/Style Fields */}
+                                                                {customization.colorScheme && (
+                                                                    <div className="bg-white p-3 rounded-md shadow-sm">
+                                                                        <span className="font-semibold text-stone-700 block mb-1">🎨 Color Scheme:</span>
+                                                                        <span className="text-stone-900">{customization.colorScheme}</span>
+                                                                    </div>
+                                                                )}
+                                                                {customization.fontStyle && (
+                                                                    <div className="bg-white p-3 rounded-md shadow-sm">
+                                                                        <span className="font-semibold text-stone-700 block mb-1">✍️ Font Style:</span>
+                                                                        <span className="text-stone-900">{customization.fontStyle}</span>
+                                                                    </div>
+                                                                )}
+
+                                                                {/* Additional Info */}
+                                                                {customization.additionalInfo && (
+                                                                    <div className="bg-white p-3 rounded-md shadow-sm md:col-span-2">
+                                                                        <span className="font-semibold text-stone-700 block mb-1">📝 Additional Info:</span>
+                                                                        <p className="text-stone-800 whitespace-pre-wrap italic">{customization.additionalInfo}</p>
+                                                                    </div>
+                                                                )}
+                                                                {customization.notes && (
+                                                                    <div className="bg-white p-3 rounded-md shadow-sm md:col-span-2">
+                                                                        <span className="font-semibold text-stone-700 block mb-1">💬 Customer Notes:</span>
+                                                                        <p className="text-stone-800 whitespace-pre-wrap italic">{customization.notes}</p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     )}
                                                 </div>
