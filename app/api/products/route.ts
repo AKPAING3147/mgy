@@ -84,22 +84,22 @@ export async function DELETE(req: NextRequest) {
 
         const validId = idValidation.data;
 
-        // Check for active orders (not COMPLETED or DELETED)
-        const activeOrderItems = await prisma.orderItem.findFirst({
+        // Check if product has ANY existing orders (to preserve order history)
+        const existingOrderItems = await prisma.orderItem.findFirst({
             where: {
                 productId: validId,
                 order: {
                     status: {
-                        notIn: ["COMPLETED", "DELETED"]
+                        not: "DELETED" // Only exclude truly deleted orders
                     }
                 }
             }
         });
 
-        if (activeOrderItems) {
+        if (existingOrderItems) {
             return NextResponse.json({
                 success: false,
-                message: "Cannot delete product with active orders"
+                message: "Cannot delete product with existing orders. This product is part of order history and must be preserved."
             }, { status: 400 });
         }
 

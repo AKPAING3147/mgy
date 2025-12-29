@@ -35,3 +35,29 @@ export async function GET(
         }, { status: 500 });
     }
 }
+
+export async function DELETE(
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const { id } = await params;
+
+        // Update order status to DELETED
+        await prisma.order.update({
+            where: { id },
+            data: { status: "DELETED" }
+        });
+
+        return NextResponse.json({
+            success: true,
+            message: "Order deleted successfully"
+        });
+    } catch (error) {
+        console.error("Error deleting order:", error);
+        return NextResponse.json(
+            { success: false, error: "Failed to delete order" },
+            { status: 500 }
+        );
+    }
+}

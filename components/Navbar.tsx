@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X, Heart } from "lucide-react";
+import { Menu, X, Heart, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
@@ -40,6 +40,9 @@ export default function Navbar() {
                     ))}
                     <Link href="/track-order" className="relative" title="Favorites & Orders">
                         <Heart className="w-5 h-5 text-stone-600 hover:text-primary transition-colors" />
+                    </Link>
+                    <Link href="/account" className="relative" title="My Account">
+                        <User className="w-5 h-5 text-stone-600 hover:text-primary transition-colors" />
                     </Link>
                     <LanguageSwitcher />
                 </div>

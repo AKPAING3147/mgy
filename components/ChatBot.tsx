@@ -1,80 +1,81 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Bot, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { AnimatePresence, motion } from "framer-motion";
+import { MessageCircle, X, Send, Minus } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Message {
     id: string;
     text: string;
-    sender: "bot" | "user";
-    options?: string[];
+    sender: "user" | "bot";
+    timestamp: Date;
 }
 
-export default function ChatBot() {
+export default function Chatbot() {
     const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState<Message[]>([
-        {
-            id: "1",
-            text: "မင်္ဂလာပါ 🙏 MGY OFFSET Website အသုံးပြုနည်းကို ကူညီပေးဖို့ ကျွန်တော်အဆင်သင့်ရှိပါတယ်။ ဘာသိလိုပါသလဲ?",
-            sender: "bot",
-            options: ["အော်ဒါမှာနည်း", "ငွေပေးချေနည်း", "အော်ဒါကြည့်နည်း", "ဆက်သွယ်ရန်"]
-        }
-    ]);
-    const scrollRef = useRef<HTMLDivElement>(null);
+    const [input, setInput] = useState("");
+    const [messages, setMessages] = useState<Message[]>([]);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const { t } = useLanguage();
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
 
     useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-        }
+        scrollToBottom();
     }, [messages, isOpen]);
 
-    const handleOptionClick = (option: string) => {
-        // Add user message
+    useEffect(() => {
+        if (messages.length === 0 && isOpen) {
+            setMessages([
+                {
+                    id: "welcome",
+                    text: t("chat_welcome"),
+                    sender: "bot",
+                    timestamp: new Date(),
+                },
+            ]);
+        }
+    }, [isOpen, t]);
+
+    const handleSend = () => {
+        if (!input.trim()) return;
+
         const userMsg: Message = {
             id: Date.now().toString(),
-            text: option,
-            sender: "user"
+            text: input,
+            sender: "user",
+            timestamp: new Date(),
         };
-        setMessages(prev => [...prev, userMsg]);
 
-        // Simulate bot response delay
+        setMessages((prev) => [...prev, userMsg]);
+        setInput("");
+
+        // Simple auto-reply logic
         setTimeout(() => {
-            let botText = "";
-            let nextOptions: string[] | undefined = ["ပင်မစာမျက်နှာသို့", "အခြားမေးမြန်းရန်"];
+            let replyText = t("chat_reply_human");
+            const lowerInput = input.toLowerCase();
 
-            switch (option) {
-                case "အော်ဒါမှာနည်း":
-                    botText = "ကုန်ပစ္စည်းများကို ကြည့်ရှုပြီး 'Order Now' ကိုနှိပ်ပါ။\n\nထို့နောက် အရေအတွက်ရွေးချယ်၊ အချက်အလက်များဖြည့်သွင်းပြီး 'Place Order' ကိုနှိပ်ကာ အော်ဒါတင်နိုင်ပါတယ်။";
-                    break;
-                case "ငွေပေးချေနည်း":
-                    botText = "အော်ဒါတင်ပြီးပါက KPay သို့မဟုတ် ဘဏ်အကောင့်များသို့ ငွေလွှဲပေးချေနိုင်ပါတယ်။\n\nငွေလွှဲပြေစာ (Slip) ကို 'Track Order' စာမျက်နှာတွင် အော်ဒါနံပါတ်ဖြင့်ရှာပြီး တင်ပေးရပါမယ်။";
-                    break;
-                case "အော်ဒါကြည့်နည်း":
-                    botText = "'Track Order' စာမျက်နှာသို့သွားပြီး အော်ဒါနံပါတ် (Order ID) ရိုက်ထည့်ကာ မိမိအော်ဒါအခြေအနေကို ကြည့်ရှုနိုင်ပါတယ်။";
-                    break;
-                case "ဆက်သွယ်ရန်":
-                    botText = "အသေးစိတ်သိရှိလိုပါက ဖုန်းနံပါတ် 09 797 436 123 ၊ 09 797 436 124 သို့ ဆက်သွယ်မေးမြန်းနိုင်ပါတယ်။";
-                    break;
-                case "ပင်မစာမျက်နှာသို့":
-                case "အခြားမေးမြန်းရန်":
-                    botText = "ဟုတ်ကဲ့၊ နောက်ထပ် ဘာကူညီပေးရမလဲ?";
-                    nextOptions = ["အော်ဒါမှာနည်း", "ငွေပေးချေနည်း", "အော်ဒါကြည့်နည်း", "ဆက်သွယ်ရန်"];
-                    break;
-                default:
-                    botText = "ဖြည့်စွက်ပြောကြားစရာရှိပါက ဖုန်းဆက်သွယ်မေးမြန်းနိုင်ပါတယ်။";
-                    nextOptions = ["ဆက်သွယ်ရန်"];
+            if (lowerInput.includes("product") || lowerInput.includes("collection") || lowerInput.includes("card")) {
+                replyText = t("chat_reply_prods");
+            } else if (lowerInput.includes("track") || lowerInput.includes("order") || lowerInput.includes("status")) {
+                replyText = t("chat_reply_order");
             }
 
             const botMsg: Message = {
                 id: (Date.now() + 1).toString(),
-                text: botText,
+                text: replyText,
                 sender: "bot",
-                options: nextOptions
+                timestamp: new Date(),
             };
-            setMessages(prev => [...prev, botMsg]);
-        }, 600);
+            setMessages((prev) => [...prev, botMsg]);
+        }, 1000);
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter") handleSend();
     };
 
     return (
@@ -82,72 +83,79 @@ export default function ChatBot() {
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                        className="mb-4 w-[350px] bg-white rounded-2xl shadow-2xl border border-stone-200 overflow-hidden"
+                        initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.8, y: 20 }}
+                        className="mb-4 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-stone-200 overflow-hidden flex flex-col"
+                        style={{ height: "500px", maxHeight: "80vh" }}
                     >
                         {/* Header */}
-                        <div className="bg-gradient-to-r from-primary to-secondary p-4 flex justify-between items-center text-white">
+                        <div className="bg-stone-900 p-4 flex items-center justify-between text-white">
                             <div className="flex items-center gap-2">
-                                <Bot className="w-6 h-6" />
-                                <div>
-                                    <h3 className="font-bold text-sm">MGY Assistant</h3>
-                                    <span className="text-xs opacity-90">● Online</span>
-                                </div>
+                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                                <h3 className="font-medium">{t("chat_title")}</h3>
                             </div>
-                            <button onClick={() => setIsOpen(false)} className="hover:bg-white/20 p-1 rounded-full transition-colors">
-                                <X className="w-5 h-5" />
+                            <button
+                                onClick={() => setIsOpen(false)}
+                                className="p-1 hover:bg-white/10 rounded transition-colors"
+                            >
+                                <Minus className="w-5 h-5" />
                             </button>
                         </div>
 
-                        {/* Chat Area */}
-                        <div
-                            ref={scrollRef}
-                            className="h-[400px] overflow-y-auto p-4 bg-stone-50 space-y-4"
-                        >
+                        {/* Messages */}
+                        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-stone-50">
                             {messages.map((msg) => (
                                 <div
                                     key={msg.id}
                                     className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
                                 >
                                     <div
-                                        className={`max-w-[85%] rounded-2xl p-3 text-sm whitespace-pre-wrap leading-relaxed ${msg.sender === "user"
-                                            ? "bg-primary text-white rounded-tr-none"
-                                            : "bg-white text-stone-800 shadow-sm border border-stone-100 rounded-tl-none"
+                                        className={`max-w-[80%] p-3 rounded-2xl text-sm ${msg.sender === "user"
+                                                ? "bg-stone-800 text-white rounded-br-none"
+                                                : "bg-white border border-stone-200 text-stone-800 rounded-bl-none shadow-sm"
                                             }`}
                                     >
                                         {msg.text}
                                     </div>
                                 </div>
                             ))}
+                            <div ref={messagesEndRef} />
+                        </div>
 
-                            {/* Options for last message */}
-                            {messages[messages.length - 1].sender === "bot" && messages[messages.length - 1].options && (
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                    {messages[messages.length - 1].options?.map((option) => (
-                                        <button
-                                            key={option}
-                                            onClick={() => handleOptionClick(option)}
-                                            className="text-xs bg-white border border-secondary text-stone-700 px-3 py-2 rounded-full hover:bg-secondary hover:text-white transition-colors shadow-sm"
-                                        >
-                                            {option}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
+                        {/* Input */}
+                        <div className="p-4 bg-white border-t border-stone-100">
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    onKeyDown={handleKeyPress}
+                                    placeholder={t("chat_placeholder")}
+                                    className="w-full pl-4 pr-12 py-3 rounded-xl bg-stone-100 border-none focus:ring-2 focus:ring-stone-400 outline-none text-stone-800 placeholder:text-stone-400"
+                                />
+                                <button
+                                    onClick={handleSend}
+                                    disabled={!input.trim()}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-stone-900 text-white rounded-lg hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    <Send className="w-4 h-4" />
+                                </button>
+                            </div>
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* Toggle Button */}
-            <Button
+            <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setIsOpen(!isOpen)}
-                className="h-14 w-14 rounded-full bg-gradient-to-r from-primary to-secondary shadow-lg hover:shadow-xl hover:scale-105 transition-all p-0 flex items-center justify-center animate-bounce-subtle"
+                className={`p-4 rounded-full shadow-lg transition-colors duration-300 ${isOpen ? "bg-stone-800 text-white" : "bg-primary text-white"
+                    }`}
             >
-                {isOpen ? <X className="w-6 h-6 text-white" /> : <MessageCircle className="w-7 h-7 text-white" />}
-            </Button>
+                {isOpen ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
+            </motion.button>
         </div>
     );
 }

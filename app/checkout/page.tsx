@@ -108,15 +108,47 @@ export default function Checkout() {
 
                     <div className="bg-secondary/10 p-6 rounded-lg h-fit border border-secondary/20">
                         <h2 className="text-xl font-medium mb-4 font-serif">Order Summary</h2>
-                        <div className="space-y-4 max-h-64 overflow-auto bg-white p-4 rounded-md shadow-inner">
+                        <div className="space-y-4 max-h-96 overflow-auto bg-white p-4 rounded-md shadow-inner">
                             {cart.map((item, i) => (
-                                <div key={i} className="flex justify-between text-sm border-b pb-2 last:border-0">
-                                    <div className="pr-4">
-                                        <div className="font-medium text-stone-900">{item.product.name}</div>
-                                        <div className="text-xs text-muted-foreground">Qty: {item.quantity}</div>
-                                        {item.notes && <div className="text-xs text-stone-500 italic mt-1">Note: {item.notes}</div>}
+                                <div key={i} className="border-b pb-4 last:border-0">
+                                    <div className="flex justify-between mb-2">
+                                        <div className="pr-4">
+                                            <div className="font-medium text-stone-900">{item.product.name}</div>
+                                            <div className="text-xs text-muted-foreground">Qty: {item.quantity}</div>
+                                        </div>
+                                        <span className="font-medium">${item.totalPrice.toFixed(2)}</span>
                                     </div>
-                                    <span className="font-medium">${item.totalPrice.toFixed(2)}</span>
+
+                                    {/* Customization Details */}
+                                    {item.customization && (
+                                        <div className="bg-secondary/10 p-3 rounded-md mt-2 text-xs space-y-1">
+                                            <p className="font-semibold text-stone-700 mb-2">Customization:</p>
+                                            {item.customization.brideName && (
+                                                <p><span className="font-medium">Bride:</span> {item.customization.brideName}</p>
+                                            )}
+                                            {item.customization.groomName && (
+                                                <p><span className="font-medium">Groom:</span> {item.customization.groomName}</p>
+                                            )}
+                                            {item.customization.weddingDate && (
+                                                <p><span className="font-medium">Date:</span> {new Date(item.customization.weddingDate).toLocaleDateString()}</p>
+                                            )}
+                                            {item.customization.weddingTime && (
+                                                <p><span className="font-medium">Time:</span> {item.customization.weddingTime}</p>
+                                            )}
+                                            {item.customization.venue && (
+                                                <p><span className="font-medium">Venue:</span> {item.customization.venue}</p>
+                                            )}
+                                            {item.customization.colorScheme && (
+                                                <p><span className="font-medium">Color:</span> {item.customization.colorScheme}</p>
+                                            )}
+                                            {item.customization.fontStyle && (
+                                                <p><span className="font-medium">Font:</span> {item.customization.fontStyle}</p>
+                                            )}
+                                            {item.customization.additionalInfo && (
+                                                <p className="italic mt-2 text-stone-600">"{item.customization.additionalInfo}"</p>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>

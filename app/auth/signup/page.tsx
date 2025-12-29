@@ -7,47 +7,49 @@ import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export default function Login() {
+export default function Signup() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
+        name: "",
         email: "",
-        password: ""
+        password: "",
+        confirmPassword: ""
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleLogin = async (e: React.FormEvent) => {
+    const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (formData.password !== formData.confirmPassword) {
+            toast.error("Passwords do not match");
+            return;
+        }
+
         setLoading(true);
 
         try {
-            const res = await fetch("/api/auth/login", {
+            const res = await fetch("/api/auth/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({
+                    name: formData.name,
+                    email: formData.email,
+                    password: formData.password
+                })
             });
 
             const data = await res.json();
 
             if (!res.ok) {
-                throw new Error(data.message || "Login failed");
+                throw new Error(data.message || "Registration failed");
             }
 
-            toast.success("Welcome back!");
-
-            // Redirect based on role
-            if (data.user.role === "ADMIN") {
-                router.push("/admin");
-            } else {
-                router.push("/");
-            }
-
-            // Force refresh to update UI state (e.g. Navbar)
-            router.refresh();
-
+            toast.success("Account created successfully! Please sign in.");
+            router.push("/auth/login");
         } catch (error: any) {
             toast.error(error.message);
         } finally {
@@ -62,10 +64,21 @@ export default function Login() {
             </Link>
             <div className="bg-white p-6 md:p-10 rounded-xl shadow-xl w-full max-w-md border border-stone-100">
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-serif text-stone-900 mb-2">Welcome Back</h1>
-                    <p className="text-stone-500">Sign in to your Eternity account</p>
+                    <h1 className="text-3xl font-serif text-stone-900 mb-2">Create Account</h1>
+                    <p className="text-stone-500">Join the Eternity Invites family</p>
                 </div>
-                <form onSubmit={handleLogin} className="space-y-6">
+                <form onSubmit={handleSignup} className="space-y-4">
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-stone-700">Full Name</label>
+                        <Input
+                            name="name"
+                            placeholder="John Doe"
+                            required
+                            value={formData.name}
+                            onChange={handleChange}
+                            className="bg-stone-50"
+                        />
+                    </div>
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-stone-700">Email</label>
                         <Input
@@ -89,16 +102,29 @@ export default function Login() {
                             onChange={handleChange}
                             className="bg-stone-50"
                         />
+                        <p className="text-xs text-stone-400">Must be at least 8 chars with uppercase, lowercase, number & special char.</p>
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-stone-700">Confirm Password</label>
+                        <Input
+                            name="confirmPassword"
+                            placeholder="••••••••"
+                            type="password"
+                            required
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                            className="bg-stone-50"
+                        />
                     </div>
                     <Button
                         disabled={loading}
-                        className="w-full text-lg h-12 bg-primary hover:bg-primary/90 text-white"
+                        className="w-full text-lg h-12 bg-primary hover:bg-primary/90 text-white mt-4"
                     >
-                        {loading ? "Signing In..." : "Sign In"}
+                        {loading ? "Creating Account..." : "Sign Up"}
                     </Button>
                 </form>
                 <div className="mt-6 text-center text-sm text-stone-500">
-                    Don't have an account? <Link href="/auth/signup" className="text-primary font-medium hover:underline">Create Account</Link>
+                    Already have an account? <Link href="/auth/login" className="text-primary font-medium hover:underline">Sign In</Link>
                 </div>
             </div>
         </div>

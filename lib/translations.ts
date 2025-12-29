@@ -77,6 +77,27 @@ export const translations = {
         common_close: "Close",
         common_back: "Back",
 
+        // Services
+        services_title: "Our Services",
+        services_desc: "We offer a comprehensive range of printing and design services to meet all your needs.",
+        service_offset_title: "Offset Printing",
+        service_offset_desc: "High-quality, cost-effective printing for large volume orders. Perfect for brochures, flyers, and more.",
+        service_design_title: "Custom Design",
+        service_design_desc: "Professional graphic design services to bring your vision to life. From logos to complete brand identities.",
+        service_finish_title: "Premium Finishes",
+        service_finish_desc: "Elevate your print with foil stamping, embossing, spot UV, and die-cutting for a luxury touch.",
+        service_delivery_title: "Fast Delivery",
+        service_delivery_desc: "Reliable and fast shipping options to ensure your materials arrive when you need them.",
+
+        // Chatbot
+        chat_title: "Customer Support",
+        chat_placeholder: "Type a message...",
+        chat_send: "Send",
+        chat_welcome: "Hello! How can we help you today?",
+        chat_reply_prods: "You can view our collection on the products page.",
+        chat_reply_order: "To track your order, please use the Track Order page.",
+        chat_reply_human: "I'll connect you with a human agent shortly.",
+
         // Footer
         footer_rights: "© 2024 Eternity Invites. All rights reserved.",
     },
@@ -159,6 +180,27 @@ export const translations = {
         common_close: "ปิด",
         common_back: "กลับ",
 
+        // Services
+        services_title: "บริการของเรา",
+        services_desc: "เราให้บริการงานพิมพ์และออกแบบครบวงจรเพื่อตอบสนองทุกความต้องการของคุณ",
+        service_offset_title: "การพิมพ์ออฟเซ็ท",
+        service_offset_desc: "งานพิมพ์คุณภาพสูง ราคาประหยัด สำหรับงานจำนวนมาก เหมาะสำหรับโบรชัวร์ ใบปลิว และอื่นๆ",
+        service_design_title: "ออกแบบตามสั่ง",
+        service_design_desc: "บริการออกแบบกราฟิกมืออาชีพเพื่อทำให้วิสัยทัศน์ของคุณเป็นจริง ตั้งแต่โลโก้ไปจนถึงอัตลักษณ์แบรนด์",
+        service_finish_title: "การตกแต่งพรีเมียม",
+        service_finish_desc: "ยกระดับงานพิมพ์ของคุณด้วยการปั๊มฟอยล์ ปั๊มนูน สปอตยูวี และไดคัทเพื่อสัมผัสที่หรูหรา",
+        service_delivery_title: "จัดส่งรวดเร็ว",
+        service_delivery_desc: "ตัวเลือกการจัดส่งที่เชื่อถือได้และรวดเร็ว เพื่อให้แน่ใจว่างานของคุณจะถึงมือเมื่อคุณต้องการ",
+
+        // Chatbot
+        chat_title: "บริการลูกค้า",
+        chat_placeholder: "พิมพ์ข้อความ...",
+        chat_send: "ส่ง",
+        chat_welcome: "สวัสดี! มีอะไรให้เราช่วยไหมครับ?",
+        chat_reply_prods: "คุณสามารถดูคอลเลกชันของเราได้ที่หน้าสินค้า",
+        chat_reply_order: "หากต้องการติดตามคำสั่งซื้อ โปรดใช้หน้าติดตามคำสั่งซื้อ",
+        chat_reply_human: "ฉันจะติดต่อเจ้าหน้าที่ให้คุณสักครู่",
+
         // Footer
         footer_rights: "© 2024 Eternity Invites สงวนลิขสิทธิ์",
     },
@@ -240,6 +282,27 @@ export const translations = {
         common_edit: "တည်းဖြတ်ရန်",
         common_close: "ပိတ်ရန်",
         common_back: "နောက်သို့",
+
+        // Services
+        services_title: "ကျွန်ုပ်တို့၏ဝန်ဆောင်မှုများ",
+        services_desc: "သင်၏လိုအပ်ချက်များကိုဖြည့်ဆည်းပေးရန် ပုံနှိပ်ခြင်းနှင့် ဒီဇိုင်းဝန်ဆောင်မှုအစုံအလင်ကို ပေးဆောင်ပါသည်။",
+        service_offset_title: "Offset ပုံနှိပ်ခြင်း",
+        service_offset_desc: "ပမာဏများသော အော်ဒါများအတွက် အရည်အသွေးမြင့် ကုန်ကျစရိတ်သက်သာသော ပုံနှိပ်ခြင်း။ လက်ကမ်းစာစောင်များအတွက် အထူးသင့်လျော်ပါသည်။",
+        service_design_title: "စိတ်ကြိုက်ဒီဇိုင်း",
+        service_design_desc: "သင့်စိတ်ကူးကို လက်တွေ့အကောင်အထည်ဖော်ရန် ပရော်ဖက်ရှင်နယ် ဂရပ်ဖစ်ဒီဇိုင်းဝန်ဆောင်မှုများ။",
+        service_finish_title: "ပရီမီယံ အချောသတ်များ",
+        service_finish_desc: "ရွှေနန်းကပ်ခြင်း၊ ဖောင်းကြွခြင်း၊ Spot UV နှင့် ပုံဖော်ဖြတ်တောက်ခြင်းတို့ဖြင့် သင့်ပုံနှိပ်လုပ်ငန်းကို မြှင့်တင်ပါ။",
+        service_delivery_title: "အမြန်ပို့ဆောင်ခြင်း",
+        service_delivery_desc: "လိုချင်သောအချိန်တွင် ရောက်ရှိစေရန် ယုံကြည်စိတ်ချရပြီး လျင်မြန်သော ပို့ဆောင်မှုစနစ်။",
+
+        // Chatbot
+        chat_title: "ဖောက်သည်ဝန်ဆောင်မှု",
+        chat_placeholder: "စာရိုက်ပါ...",
+        chat_send: "ပို့ရန်",
+        chat_welcome: "မင်္ဂလာပါ! ဘာကူညီပေးရမလဲ?",
+        chat_reply_prods: "ကုန်ပစ္စည်းစာမျက်နှာတွင် ကြည့်ရှုနိုင်ပါသည်။",
+        chat_reply_order: "အော်ဒါခြေရာခံရန် ကျေးဇူးပြု၍ Track Order စာမျက်နှာကို သုံးပါ။",
+        chat_reply_human: "လူသားဝန်ထမ်းနှင့် မကြာမီ ချိတ်ဆက်ပေးပါမည်။",
 
         // Footer
         footer_rights: "© 2024 Eternity Invites. မူပိုင်ခွင့်များလေးစားသည်",

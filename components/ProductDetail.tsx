@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, Heart, ShoppingCart } from "lucide-react";
+import { Heart, ShoppingCart, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/contexts/LanguageContext";
+import InvitationPreview from "@/components/InvitationPreview";
 
 interface Product {
     id: string;
@@ -20,25 +21,37 @@ interface Product {
     stock?: number;
 }
 
+interface CustomizationData {
+    brideName: string;
+    groomName: string;
+    weddingDate: string;
+    weddingTime: string;
+    venue: string;
+    additionalInfo: string;
+    colorScheme: string;
+    fontStyle: string;
+}
+
 export default function ProductDetail({ product }: { product: Product }) {
     const router = useRouter();
     const { t } = useLanguage();
-    const [currentImage, setCurrentImage] = useState(0);
     const minQty = product.minQuantity || 1;
     const [quantity, setQuantity] = useState(minQty);
-    const [notes, setNotes] = useState("");
     const [isFavorite, setIsFavorite] = useState(false);
 
-    let images: string[] = [];
-    try {
-        images = JSON.parse(product.images);
-    } catch (e) {
-        images = [product.images];
-    }
-    const validImages = images.filter(img => img && img.length > 0);
+    // Customization fields
+    const [customization, setCustomization] = useState<CustomizationData>({
+        brideName: "",
+        groomName: "",
+        weddingDate: "",
+        weddingTime: "",
+        venue: "",
+        additionalInfo: "",
+        colorScheme: "rose-gold",
+        fontStyle: "elegant"
+    });
 
     useEffect(() => {
-        // Check if product is in favorites
         const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
         setIsFavorite(favorites.includes(product.id));
     }, [product.id]);
@@ -53,27 +66,41 @@ export default function ProductDetail({ product }: { product: Product }) {
     };
 
     const handleOrder = () => {
+        // Validate required fields
+        if (!customization.brideName || !customization.groomName || !customization.weddingDate || !customization.venue) {
+            toast.error("Please fill in all required fields (Bride, Groom, Date, Venue)");
+            return;
+        }
+
         const cartItem = {
             product,
             quantity,
-            notes,
-            customization: { notes },
+            customization,
             totalPrice: product.price * quantity
         };
         localStorage.setItem("cart", JSON.stringify([cartItem]));
         router.push("/checkout");
     };
 
-    const nextImage = () => {
-        setCurrentImage((prev) => (prev + 1) % validImages.length);
-    };
-
-    const prevImage = () => {
-        setCurrentImage((prev) => (prev - 1 + validImages.length) % validImages.length);
-    };
-
     const stock = product.stock ?? 0;
     const isOutOfStock = stock <= 0;
+
+    // Color schemes
+    const colorSchemes = [
+        { value: "rose-gold", label: "Rose Gold", colors: "bg-gradient-to-r from-rose-400 to-amber-300" },
+        { value: "classic", label: "Classic White", colors: "bg-gradient-to-r from-stone-100 to-stone-200" },
+        { value: "romantic", label: "Romantic Pink", colors: "bg-gradient-to-r from-pink-300 to-rose-400" },
+        { value: "elegant", label: "Elegant Navy", colors: "bg-gradient-to-r from-blue-900 to-slate-700" },
+        { value: "garden", label: "Garden Green", colors: "bg-gradient-to-r from-emerald-400 to-teal-500" }
+    ];
+
+    // Font styles
+    const fontStyles = [
+        { value: "elegant", label: "Elegant Serif" },
+        { value: "modern", label: "Modern Sans" },
+        { value: "romantic", label: "Romantic Script" },
+        { value: "classic", label: "Classic Times" }
+    ];
 
     return (
         <div className="min-h-screen bg-background pt-24 pb-12">
@@ -83,67 +110,21 @@ export default function ProductDetail({ product }: { product: Product }) {
                 </Link>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                    {/* Image Gallery */}
+                    {/* Preview Section */}
                     <div className="space-y-4">
-                        {/* Main Image */}
-                        <div className="relative aspect-square bg-white rounded-xl overflow-hidden shadow-xl border border-border">
-                            {validImages.length > 0 ? (
-                                <>
-                                    <img
-                                        src={validImages[currentImage]}
-                                        alt={product.name}
-                                        className={`w-full h-full object-cover ${isOutOfStock ? "grayscale opacity-80" : ""}`}
-                                    />
-                                    {isOutOfStock && (
-                                        <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                                            <span className="bg-red-600 text-white px-6 py-2 rounded-full text-xl font-bold uppercase tracking-widest shadow-lg transform -rotate-12 border-2 border-white">
-                                                Out of Stock
-                                            </span>
-                                        </div>
-                                    )}
-
-                                    {validImages.length > 1 && (
-                                        <>
-                                            <button
-                                                onClick={prevImage}
-                                                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg transition-transform hover:scale-110"
-                                            >
-                                                <ChevronLeft className="w-6 h-6" />
-                                            </button>
-                                            <button
-                                                onClick={nextImage}
-                                                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg transition-transform hover:scale-110"
-                                            >
-                                                <ChevronRight className="w-6 h-6" />
-                                            </button>
-                                        </>
-                                    )}
-                                </>
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-stone-100">
-                                    <span className="text-stone-400">No Image</span>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Thumbnails */}
-                        {validImages.length > 1 && (
-                            <div className="flex gap-3 justify-center overflow-x-auto pb-2">
-                                {validImages.map((img, idx) => (
-                                    <button
-                                        key={idx}
-                                        onClick={() => setCurrentImage(idx)}
-                                        className={`w-20 h-20 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 ${idx === currentImage ? "border-primary shadow-lg ring-2 ring-primary/20" : "border-transparent opacity-70 hover:opacity-100"
-                                            }`}
-                                    >
-                                        <img src={img} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
-                                    </button>
-                                ))}
+                        <div className="bg-white rounded-xl shadow-2xl border border-border p-8">
+                            <div className="flex items-center gap-2 mb-4 text-primary">
+                                <Sparkles className="w-5 h-5" />
+                                <h3 className="font-bold text-lg">Live Preview</h3>
                             </div>
-                        )}
+                            <InvitationPreview
+                                customization={customization}
+                                productName={product.name}
+                            />
+                        </div>
                     </div>
 
-                    {/* Product Info */}
+                    {/* Customization Form */}
                     <div className="space-y-8">
                         <div className="flex justify-between items-start">
                             <span className="bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm font-bold uppercase shadow-sm">
@@ -167,13 +148,126 @@ export default function ProductDetail({ product }: { product: Product }) {
                             <span className="text-muted-foreground text-lg">{t("products_per_card")}</span>
                         </div>
 
-                        {/* Order Form */}
+                        {/* Customization Form */}
                         <div className={`space-y-6 bg-card p-6 rounded-2xl border border-border shadow-sm ${isOutOfStock ? "opacity-75 grayscale" : ""}`}>
-                            <h3 className="text-xl font-bold mb-4">Start Your Order</h3>
+                            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                                <Sparkles className="w-5 h-5 text-primary" />
+                                Customize Your Invitation
+                            </h3>
 
+                            {/* Bride & Groom Names */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="font-semibold block mb-2 text-sm">Bride's Name *</label>
+                                    <Input
+                                        value={customization.brideName}
+                                        onChange={(e) => setCustomization({ ...customization, brideName: e.target.value })}
+                                        placeholder="Jane"
+                                        disabled={isOutOfStock}
+                                        className="h-11"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="font-semibold block mb-2 text-sm">Groom's Name *</label>
+                                    <Input
+                                        value={customization.groomName}
+                                        onChange={(e) => setCustomization({ ...customization, groomName: e.target.value })}
+                                        placeholder="John"
+                                        disabled={isOutOfStock}
+                                        className="h-11"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Wedding Date & Time */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="font-semibold block mb-2 text-sm">Wedding Date *</label>
+                                    <Input
+                                        type="date"
+                                        value={customization.weddingDate}
+                                        onChange={(e) => setCustomization({ ...customization, weddingDate: e.target.value })}
+                                        disabled={isOutOfStock}
+                                        className="h-11"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="font-semibold block mb-2 text-sm">Wedding Time</label>
+                                    <Input
+                                        type="time"
+                                        value={customization.weddingTime}
+                                        onChange={(e) => setCustomization({ ...customization, weddingTime: e.target.value })}
+                                        disabled={isOutOfStock}
+                                        className="h-11"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Venue */}
+                            <div>
+                                <label className="font-semibold block mb-2 text-sm">Venue *</label>
+                                <Input
+                                    value={customization.venue}
+                                    onChange={(e) => setCustomization({ ...customization, venue: e.target.value })}
+                                    placeholder="Sunset Garden Resort"
+                                    disabled={isOutOfStock}
+                                    className="h-11"
+                                />
+                            </div>
+
+                            {/* Color Scheme */}
+                            <div>
+                                <label className="font-semibold block mb-3 text-sm">Color Scheme</label>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {colorSchemes.map((scheme) => (
+                                        <button
+                                            key={scheme.value}
+                                            type="button"
+                                            onClick={() => setCustomization({ ...customization, colorScheme: scheme.value })}
+                                            disabled={isOutOfStock}
+                                            className={`p-3 rounded-lg border-2 transition-all ${customization.colorScheme === scheme.value
+                                                    ? "border-primary shadow-lg ring-2 ring-primary/20"
+                                                    : "border-border hover:border-primary/50"
+                                                }`}
+                                        >
+                                            <div className={`h-8 rounded ${scheme.colors} mb-1`}></div>
+                                            <p className="text-xs font-medium">{scheme.label}</p>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Font Style */}
+                            <div>
+                                <label className="font-semibold block mb-2 text-sm">Font Style</label>
+                                <select
+                                    value={customization.fontStyle}
+                                    onChange={(e) => setCustomization({ ...customization, fontStyle: e.target.value })}
+                                    disabled={isOutOfStock}
+                                    className="w-full p-3 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                >
+                                    {fontStyles.map((font) => (
+                                        <option key={font.value} value={font.value}>{font.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Additional Info */}
+                            <div>
+                                <label className="font-semibold block mb-2 text-sm">Additional Information (Optional)</label>
+                                <textarea
+                                    value={customization.additionalInfo}
+                                    onChange={(e) => setCustomization({ ...customization, additionalInfo: e.target.value })}
+                                    placeholder="Reception details, dress code, special instructions..."
+                                    disabled={isOutOfStock}
+                                    className="w-full p-4 border border-input rounded-xl min-h-[100px] resize-none focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                                />
+                            </div>
+
+                            {/* Quantity */}
                             <div className="flex items-center gap-6">
                                 <div className="space-y-1">
-                                    <label className="font-semibold block text-lg">Quantity:</label>
+                                    <label className="font-semibold block text-sm">Quantity:</label>
                                     {minQty > 1 && (
                                         <span className="text-xs text-red-500 font-medium">
                                             Minimum order: {minQty}
@@ -195,18 +289,7 @@ export default function ProductDetail({ product }: { product: Product }) {
                                         }
                                     }}
                                     disabled={isOutOfStock}
-                                    className="w-32 text-center text-lg font-bold h-12"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="font-semibold block mb-3 text-lg">Order Notes (Optional):</label>
-                                <textarea
-                                    value={notes}
-                                    onChange={(e) => setNotes(e.target.value)}
-                                    placeholder="Any special requests..."
-                                    disabled={isOutOfStock}
-                                    className="w-full p-4 border border-input rounded-xl min-h-[120px] resize-none focus:outline-none focus:ring-2 focus:ring-primary/50 text-base"
+                                    className="w-32 text-center text-lg font-bold h-11"
                                 />
                             </div>
 

@@ -4,7 +4,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, PieChart, Pie } from "recharts";
 import { DashboardStats } from "@/lib/actions";
 
+import { useEffect, useState } from "react";
+
 export default function AdminCharts({ stats }: { stats: DashboardStats }) {
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    if (!isMounted) {
+        return <div className="h-[300px] w-full bg-stone-50 animate-pulse rounded-lg text-center content-center text-stone-400">Loading charts...</div>;
+    }
+
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             {/* Sales Trend Bar Chart */}

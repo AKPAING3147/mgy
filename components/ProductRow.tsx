@@ -82,8 +82,8 @@ export default function ProductRow({ product }: { product: Product }) {
                             <AlertDialogTitle className="text-red-600">Delete Product?</AlertDialogTitle>
                             <AlertDialogDescription className="space-y-2">
                                 <p>Are you sure you want to delete <strong>{product.name}</strong>?</p>
-                                <p className="text-stone-600 bg-stone-100 p-2 rounded text-xs border border-stone-200">
-                                    Note: Products with existing orders cannot be deleted to preserve order history.
+                                <p className="text-stone-600 bg-amber-50 p-2 rounded text-xs border border-amber-200">
+                                    ⚠️ <strong>Note:</strong> Products with existing orders cannot be deleted to preserve order history. Only products with zero orders can be removed.
                                 </p>
                             </AlertDialogDescription>
                         </AlertDialogHeader>

@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import { prisma } from "@/lib/prisma";
 import ProductsGrid from "@/components/ProductsGrid";
+import ServicesSection from "@/components/ServicesSection";
 
 export default async function Home() {
   // Fetch all products
@@ -12,16 +13,11 @@ export default async function Home() {
     <main className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero Banner - Your MGY OFFSET Image */}
-      <div className="pt-16">
-        <div className="w-full max-w-[1600px] mx-auto bg-stone-100/50">
-          <img
-            src="/hero-banner.jpg"
-            alt="MGY OFFSET - Printing Services"
-            className="w-full h-auto block"
-          />
-        </div>
-      </div>
+      {/* Spacer for fixed navbar */}
+      <div className="pt-28" />
+
+      {/* Services */}
+      <ServicesSection />
 
       {/* Products */}
       <ProductsGrid products={products} />

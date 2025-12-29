@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Heart } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/contexts/LanguageContext";
+import InvitationPreview from "./InvitationPreview";
 
 interface Product {
     id: string;
@@ -44,15 +45,35 @@ export default function ProductsGrid({ products }: { products: Product[] }) {
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                         {products.map((product, i) => {
-                            let images: string[] = [];
+                            // Parse template data
+                            let templateData: any = null;
                             try {
-                                images = JSON.parse(product.images);
+                                const parsed = JSON.parse(product.images);
+                                // Check if it's template data (JSON string) or old image URL
+                                if (Array.isArray(parsed)) {
+                                    const firstItem = parsed[0];
+                                    if (typeof firstItem === 'string' && firstItem.startsWith('{')) {
+                                        templateData = JSON.parse(firstItem);
+                                    }
+                                }
                             } catch (e) {
-                                images = [product.images];
+                                // Not template data
                             }
 
                             const stock = product.stock ?? 0;
                             const isOutOfStock = stock <= 0;
+
+                            // Sample data for preview
+                            const previewData = {
+                                brideName: "Jane",
+                                groomName: "John",
+                                weddingDate: "2025-06-15",
+                                weddingTime: "16:00",
+                                venue: "Sunset Garden Resort",
+                                additionalInfo: "",
+                                colorScheme: templateData?.defaultColorScheme || "rose-gold",
+                                fontStyle: templateData?.defaultFontStyle || "elegant"
+                            };
 
                             return (
                                 <motion.div
@@ -61,25 +82,20 @@ export default function ProductsGrid({ products }: { products: Product[] }) {
                                     whileInView={{ opacity: 1, y: 0 }}
                                     transition={{ delay: i * 0.1, duration: 0.4 }}
                                     viewport={{ once: true }}
-                                    className="bg-white rounded-xl overflow-hidden shadow-md border border-stone-100 flex flex-col h-full hover:shadow-lg transition-shadow"
+                                    className="bg-white rounded-xl overflow-hidden shadow-md border border-stone-100 flex flex-col h-full hover:shadow-xl transition-all duration-300"
                                 >
-                                    {/* Image - Static, no hover zoom */}
-                                    <div className="h-[300px] overflow-hidden bg-stone-100 relative">
+                                    {/* Template Preview */}
+                                    <div className="h-[400px] overflow-hidden bg-stone-50 relative p-4">
                                         <Link href={`/product/${product.id}`}>
-                                            {images[0] ? (
-                                                <img
-                                                    src={images[0]}
-                                                    alt={product.name}
-                                                    className="w-full h-full object-cover"
+                                            <div className="h-full transform hover:scale-105 transition-transform duration-300">
+                                                <InvitationPreview
+                                                    customization={previewData}
+                                                    productName={product.name}
                                                 />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-stone-300">
-                                                    No Image
-                                                </div>
-                                            )}
+                                            </div>
                                             {isOutOfStock && (
-                                                <div className="absolute inset-0 bg-white/50 flex items-center justify-center">
-                                                    <span className="bg-stone-900 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                                <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
+                                                    <span className="bg-stone-900 text-white text-xs font-bold px-4 py-2 rounded-full uppercase tracking-wider shadow-lg">
                                                         Out of Stock
                                                     </span>
                                                 </div>
@@ -88,7 +104,7 @@ export default function ProductsGrid({ products }: { products: Product[] }) {
                                     </div>
 
                                     {/* Content */}
-                                    <div className="p-5 flex flex-col flex-grow">
+                                    <div className="p-5 flex flex-col flex-grow bg-white">
                                         <div className="mb-auto">
                                             <p className="text-primary text-xs font-bold uppercase tracking-wider mb-2">
                                                 {product.category}
@@ -105,18 +121,18 @@ export default function ProductsGrid({ products }: { products: Product[] }) {
 
                                         <div className="flex items-center justify-between mt-4 pt-4 border-t border-stone-100">
                                             <div>
-                                                <span className="text-xl font-bold text-stone-900">${product.price}</span>
-                                                <span className="text-xs text-stone-400 ml-1">/ unit</span>
+                                                <span className="text-2xl font-bold text-stone-900">${product.price}</span>
+                                                <span className="text-xs text-stone-400 ml-1">/ card</span>
                                             </div>
                                             <Link href={`/product/${product.id}`}>
                                                 <button
                                                     disabled={isOutOfStock}
-                                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${isOutOfStock
-                                                            ? "bg-stone-200 text-stone-500 cursor-not-allowed"
-                                                            : "bg-primary text-white hover:bg-primary/90"
+                                                    className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 shadow-sm ${isOutOfStock
+                                                        ? "bg-stone-200 text-stone-500 cursor-not-allowed"
+                                                        : "bg-primary text-white hover:bg-primary/90 hover:shadow-md"
                                                         }`}
                                                 >
-                                                    {isOutOfStock ? "Sold Out" : "Order Now"}
+                                                    {isOutOfStock ? "Sold Out" : "Customize"}
                                                     {!isOutOfStock && <ArrowRight className="w-4 h-4" />}
                                                 </button>
                                             </Link>

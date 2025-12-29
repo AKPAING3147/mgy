@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ success: true, url: cloudinaryUrl });
     } catch (error) {
-        console.error("Upload error:", error);
-        return NextResponse.json({ success: false, message: "Upload failed" }, { status: 500 });
+        console.error("Payment slip upload error details:", error);
+        return NextResponse.json({ success: false, message: "Upload failed: " + (error as Error).message }, { status: 500 });
     }
 }

@@ -120,16 +120,18 @@ export default async function AdminDashboard() {
                             <p className="text-xs text-muted-foreground">{pendingOrders} pending review</p>
                         </CardContent>
                     </Card>
-                    <Card className="shadow-md border-l-4 border-l-blue-500">
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-medium text-stone-500">Customers</CardTitle>
-                            <Users className="w-4 h-4 text-blue-500" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{usersCount}</div>
-                            <p className="text-xs text-muted-foreground">Registered accounts</p>
-                        </CardContent>
-                    </Card>
+                    <Link href="/admin/users">
+                        <Card className="shadow-md border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow cursor-pointer">
+                            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                <CardTitle className="text-sm font-medium text-stone-500">Customers</CardTitle>
+                                <Users className="w-4 h-4 text-blue-500" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">{usersCount}</div>
+                                <p className="text-xs text-muted-foreground">Registered accounts</p>
+                            </CardContent>
+                        </Card>
+                    </Link>
                     <Card className="shadow-md border-l-4 border-l-stone-500">
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <CardTitle className="text-sm font-medium text-stone-500">Products</CardTitle>
