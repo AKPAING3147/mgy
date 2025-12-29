@@ -146,9 +146,6 @@ export default async function AccountPage() {
                                                                                 src={imgSrc}
                                                                                 alt={item.product.name}
                                                                                 className="w-full h-full object-cover"
-                                                                                onError={(e) => {
-                                                                                    (e.target as HTMLImageElement).src = '/placeholder.png';
-                                                                                }}
                                                                             />
                                                                         );
                                                                     }
@@ -160,9 +157,6 @@ export default async function AccountPage() {
                                                                                 src={item.product.images}
                                                                                 alt={item.product.name}
                                                                                 className="w-full h-full object-cover"
-                                                                                onError={(e) => {
-                                                                                    (e.target as HTMLImageElement).src = '/placeholder.png';
-                                                                                }}
                                                                             />
                                                                         );
                                                                     }

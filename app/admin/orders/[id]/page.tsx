@@ -115,10 +115,6 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                                                                             src={img}
                                                                             alt={`${item.product.name} ${idx + 1}`}
                                                                             className="w-16 h-16 object-cover rounded-md border border-stone-200 flex-shrink-0"
-                                                                            onError={(e) => {
-                                                                                (e.target as HTMLImageElement).src = '/placeholder.png';
-                                                                                console.error('Image load error:', img);
-                                                                            }}
                                                                         />
                                                                     ));
                                                                 }
@@ -134,10 +130,6 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                                                                         src={item.product.images}
                                                                         alt={item.product.name}
                                                                         className="w-16 h-16 object-cover rounded-md border border-stone-200 flex-shrink-0"
-                                                                        onError={(e) => {
-                                                                            (e.target as HTMLImageElement).src = '/placeholder.png';
-                                                                            console.error('Image load error:', item.product.images);
-                                                                        }}
                                                                     />
                                                                 );
                                                             }
