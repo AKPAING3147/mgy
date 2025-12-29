@@ -79,6 +79,28 @@ export default function Navbar() {
                                     {link.label}
                                 </Link>
                             ))}
+
+                            {/* Divider */}
+                            <div className="border-t border-stone-200 my-2"></div>
+
+                            {/* Mobile-only links */}
+                            <Link
+                                href="/account"
+                                className="flex items-center gap-2 py-2 text-stone-600 hover:text-primary"
+                                onClick={() => setMobileMenuOpen(false)}
+                            >
+                                <User className="w-4 h-4" />
+                                <span>My Account / Login</span>
+                            </Link>
+
+                            <Link
+                                href="/track-order"
+                                className="flex items-center gap-2 py-2 text-stone-600 hover:text-primary"
+                                onClick={() => setMobileMenuOpen(false)}
+                            >
+                                <Heart className="w-4 h-4" />
+                                <span>Track Orders</span>
+                            </Link>
                         </div>
                     </motion.div>
                 )}

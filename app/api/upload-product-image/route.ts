@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import cloudinary from "@/lib/cloudinary";
+import { writeFile, mkdir } from "fs/promises";
+import path from "path";
 
 export async function POST(req: NextRequest) {
     try {
@@ -10,30 +11,68 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ success: false, message: "No file uploaded" }, { status: 400 });
         }
 
-        // Convert file to base64 for Cloudinary upload
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
-        const base64 = buffer.toString('base64');
-        const dataURI = `data:${file.type};base64,${base64}`;
 
-        // Upload to Cloudinary
-        const uploadResult = await cloudinary.uploader.upload(dataURI, {
-            folder: 'wedding-invitations/products',
-            public_id: `product-${Date.now()}`,
-            resource_type: 'image',
-            transformation: [
-                { width: 800, height: 1000, crop: 'limit' }, // Optimize image size
-                { quality: 'auto:good' }, // Auto quality optimization
-                { fetch_format: 'auto' } // Auto format (webp where supported)
-            ]
-        });
+        let fileUrl: string;
 
-        // Return Cloudinary URL
-        const cloudinaryUrl = uploadResult.secure_url;
+        // Try Cloudinary first (if configured)
+        const hasCloudinary = process.env.CLOUDINARY_CLOUD_NAME &&
+            process.env.CLOUDINARY_API_KEY &&
+            process.env.CLOUDINARY_API_SECRET;
 
-        return NextResponse.json({ success: true, url: cloudinaryUrl });
+        if (hasCloudinary) {
+            try {
+                const cloudinary = (await import("@/lib/cloudinary")).default;
+                const base64 = buffer.toString('base64');
+                const dataURI = `data:${file.type};base64,${base64}`;
+
+                const uploadResult = await cloudinary.uploader.upload(dataURI, {
+                    folder: 'wedding-invitations/products',
+                    public_id: `product-${Date.now()}`,
+                    resource_type: 'image',
+                    transformation: [
+                        { width: 800, height: 1000, crop: 'limit' },
+                        { quality: 'auto:good' },
+                        { fetch_format: 'auto' }
+                    ]
+                });
+
+                fileUrl = uploadResult.secure_url;
+            } catch (cloudinaryError) {
+                console.error("Cloudinary upload failed, falling back to local storage:", cloudinaryError);
+                fileUrl = await saveFileLocally(file, buffer);
+            }
+        } else {
+            // Cloudinary not configured - use local storage
+            console.log("Cloudinary not configured, using local storage");
+            fileUrl = await saveFileLocally(file, buffer);
+        }
+
+        return NextResponse.json({ success: true, url: fileUrl });
     } catch (error) {
-        console.error("Upload error details:", error);
-        return NextResponse.json({ success: false, message: "Upload failed: " + (error as Error).message }, { status: 500 });
+        console.error("Upload error:", error);
+        return NextResponse.json({
+            success: false,
+            message: "Upload failed: " + (error as Error).message
+        }, { status: 500 });
     }
 }
+
+async function saveFileLocally(file: File, buffer: Buffer): Promise<string> {
+    // Create uploads directory if it doesn't exist
+    const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'products');
+    await mkdir(uploadsDir, { recursive: true });
+
+    // Generate unique filename
+    const fileExtension = file.name.split('.').pop() || 'jpg';
+    const fileName = `product-${Date.now()}.${fileExtension}`;
+    const filePath = path.join(uploadsDir, fileName);
+
+    // Save file
+    await writeFile(filePath, buffer);
+
+    // Return public URL
+    return `/uploads/products/${fileName}`;
+}
+

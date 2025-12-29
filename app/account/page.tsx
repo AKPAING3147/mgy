@@ -112,9 +112,9 @@ export default async function AccountPage() {
                                                 <div>
                                                     <p className="text-xs text-stone-500 uppercase tracking-wider font-semibold">Status</p>
                                                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${order.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
-                                                            order.status === 'PENDING_PAYMENT' ? 'bg-yellow-100 text-yellow-800' :
-                                                                order.status === 'PRINTING' ? 'bg-blue-100 text-blue-800' :
-                                                                    'bg-stone-100 text-stone-800'
+                                                        order.status === 'PENDING_PAYMENT' ? 'bg-yellow-100 text-yellow-800' :
+                                                            order.status === 'PRINTING' ? 'bg-blue-100 text-blue-800' :
+                                                                'bg-stone-100 text-stone-800'
                                                         }`}>
                                                         {order.status.replace(/_/g, " ")}
                                                     </span>
@@ -131,14 +131,44 @@ export default async function AccountPage() {
                                                 {order.items.map((item) => (
                                                     <div key={item.id} className="flex gap-4 items-start">
                                                         <div className="w-16 h-16 bg-stone-100 rounded-lg overflow-hidden flex-shrink-0">
-                                                            {/* Try to parse first image */}
+                                                            {/* Try to parse first image with better error handling */}
                                                             {(() => {
                                                                 try {
                                                                     const imgs = JSON.parse(item.product.images);
-                                                                    return <img src={imgs[0]} alt={item.product.name} className="w-full h-full object-cover" />;
+                                                                    const imgSrc = Array.isArray(imgs) ? imgs[0] : item.product.images;
+                                                                    if (imgSrc) {
+                                                                        return (
+                                                                            <img
+                                                                                src={imgSrc}
+                                                                                alt={item.product.name}
+                                                                                className="w-full h-full object-cover"
+                                                                                onError={(e) => {
+                                                                                    (e.target as HTMLImageElement).src = '/placeholder.png';
+                                                                                }}
+                                                                            />
+                                                                        );
+                                                                    }
                                                                 } catch {
-                                                                    return <div className="w-full h-full flex items-center justify-center text-stone-300"><Package className="w-6 h-6" /></div>;
+                                                                    // Fallback to string URL if JSON parse fails
+                                                                    if (item.product.images) {
+                                                                        return (
+                                                                            <img
+                                                                                src={item.product.images}
+                                                                                alt={item.product.name}
+                                                                                className="w-full h-full object-cover"
+                                                                                onError={(e) => {
+                                                                                    (e.target as HTMLImageElement).src = '/placeholder.png';
+                                                                                }}
+                                                                            />
+                                                                        );
+                                                                    }
                                                                 }
+                                                                // No image available
+                                                                return (
+                                                                    <div className="w-full h-full flex items-center justify-center text-stone-300">
+                                                                        <Package className="w-6 h-6" />
+                                                                    </div>
+                                                                );
                                                             })()}
                                                         </div>
                                                         <div className="flex-1 min-w-0">

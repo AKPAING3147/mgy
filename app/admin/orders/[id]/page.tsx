@@ -106,24 +106,48 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                                                     <div className="flex gap-2 mt-2 overflow-x-auto pb-2">
                                                         {(() => {
                                                             try {
+                                                                // Try to parse as JSON array first
                                                                 const images = JSON.parse(item.product.images);
-                                                                return Array.isArray(images) ? images.map((img: string, idx: number) => (
-                                                                    <img
-                                                                        key={idx}
-                                                                        src={img}
-                                                                        alt={`${item.product.name} ${idx + 1}`}
-                                                                        className="w-16 h-16 object-cover rounded-md border border-stone-200 flex-shrink-0"
-                                                                    />
-                                                                )) : null;
+                                                                if (Array.isArray(images) && images.length > 0) {
+                                                                    return images.map((img: string, idx: number) => (
+                                                                        <img
+                                                                            key={idx}
+                                                                            src={img}
+                                                                            alt={`${item.product.name} ${idx + 1}`}
+                                                                            className="w-16 h-16 object-cover rounded-md border border-stone-200 flex-shrink-0"
+                                                                            onError={(e) => {
+                                                                                (e.target as HTMLImageElement).src = '/placeholder.png';
+                                                                                console.error('Image load error:', img);
+                                                                            }}
+                                                                        />
+                                                                    ));
+                                                                }
                                                             } catch (e) {
-                                                                return item.product.images ? (
+                                                                // If JSON parsing fails, treat as single image URL
+                                                                console.log('Image parsing error, treating as single URL');
+                                                            }
+
+                                                            // Fallback: treat as single string URL
+                                                            if (item.product.images && item.product.images.trim()) {
+                                                                return (
                                                                     <img
                                                                         src={item.product.images}
                                                                         alt={item.product.name}
                                                                         className="w-16 h-16 object-cover rounded-md border border-stone-200 flex-shrink-0"
+                                                                        onError={(e) => {
+                                                                            (e.target as HTMLImageElement).src = '/placeholder.png';
+                                                                            console.error('Image load error:', item.product.images);
+                                                                        }}
                                                                     />
-                                                                ) : null;
+                                                                );
                                                             }
+
+                                                            // No images available
+                                                            return (
+                                                                <div className="w-16 h-16 bg-stone-100 rounded-md border border-stone-200 flex items-center justify-center flex-shrink-0">
+                                                                    <span className="text-xs text-stone-400">No image</span>
+                                                                </div>
+                                                            );
                                                         })()}
                                                     </div>
                                                     {customization.notes && (
