@@ -3,7 +3,6 @@ import { Playfair_Display, Lato } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import { ThemeProvider } from "@/contexts/ThemeContext";
 import ChatBot from "@/components/ChatBot";
 
 const playfair = Playfair_Display({
@@ -36,16 +35,13 @@ export default function RootLayout({
         playfair.variable,
         lato.variable
       )}>
-        <ThemeProvider>
-          <LanguageProvider>
-            {children}
-            <ChatBot />
-          </LanguageProvider>
-        </ThemeProvider>
+        <LanguageProvider>
+          {children}
+          <ChatBot />
+        </LanguageProvider>
       </body>
     </html>
   );
 }
-
 
 
