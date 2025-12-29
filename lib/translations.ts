@@ -100,6 +100,33 @@ export const translations = {
 
         // Footer
         footer_rights: "© 2024 Eternity Invites. All rights reserved.",
+
+        // New Homepage
+        home_hero_title_1: "Creating Beautiful",
+        home_hero_title_2: "Memories Together",
+        home_hero_desc: "From elegant wedding invitations to custom cloth printing, we bring your vision to life with exceptional quality and personalized service",
+        home_cta_explore: "Explore Collections",
+        home_cta_quote: "Get Custom Quote",
+        home_stats_couples: "Happy Couples",
+        home_stats_projects: "Projects Done",
+        home_stats_satisfaction: "Satisfaction",
+        home_services_title: "Our Services",
+        home_services_subtitle: "Specialized in creating memorable experiences through premium printing services",
+        home_services_wedding_title: "Wedding Invitations",
+        home_services_wedding_desc: "Elegant, customizable designs that capture the essence of your special day",
+        home_services_wedding_cta: "View Designs",
+        home_services_cloth_title: "Cloth Printing",
+        home_services_cloth_desc: "High-quality prints on t-shirts, hoodies, and custom garments",
+        home_services_cloth_cta: "Get Started",
+        home_services_custom_title: "Custom Design",
+        home_services_custom_desc: "Personalized designs tailored to your unique style and preferences",
+        home_services_custom_cta: "Contact Us",
+        home_featured_title: "Featured Designs",
+        home_featured_subtitle: "Explore our latest collection of stunning designs",
+        home_view_all: "View All Collections",
+        home_footer_about: "Creating beautiful memories through premium printing services since 2020.",
+        home_footer_quicklinks: "Quick Links",
+        home_footer_contact: "Get in Touch",
     },
 
     th: {
@@ -203,6 +230,33 @@ export const translations = {
 
         // Footer
         footer_rights: "© 2024 Eternity Invites สงวนลิขสิทธิ์",
+
+        // New Homepage
+        home_hero_title_1: "สร้างความทรงจำที่สวยงาม",
+        home_hero_title_2: "ไปด้วยกัน",
+        home_hero_desc: "ตั้งแต่การ์ดเชิญงานแต่งที่หรูหรา ไปจนถึงการพิมพ์ผ้าแบบกำหนดเอง เราทำให้วิสัยทัศน์ของคุณเป็นจริงด้วยคุณภาพที่โดดเด่นและบริการที่เป็นส่วนตัว",
+        home_cta_explore: "สำรวจคอลเลกชั่น",
+        home_cta_quote: "รับใบเสนอราคา",
+        home_stats_couples: "คู่รักที่มีความสุข",
+        home_stats_projects: "โปรเจกต์ที่ทำสำเร็จ",
+        home_stats_satisfaction: "ความพึงพอใจ",
+        home_services_title: "บริการของเรา",
+        home_services_subtitle: "เช ี่ยวชาญในการสร้างประสบการณ์ที่น่าจดจำผ่านบริการพิมพ์คุณภาพพรีเมียม",
+        home_services_wedding_title: "การ์ดเชิญงานแต่ง",
+        home_services_wedding_desc: "ดีไซน์ที่หรูหราและปรับแต่งได้ ซึ่งสะท้อนถึงวันพิเศษของคุณ",
+        home_services_wedding_cta: "ดูดีไซน์",
+        home_services_cloth_title: "พิมพ์ผ้า",
+        home_services_cloth_desc: "พิมพ์คุณภาพสูงบนเสื้อยืด เสื้อฮู้ด และเสื้อผ้าแบบกำหนดเอง",
+        home_services_cloth_cta: "เริ่มต้นเลย",
+        home_services_custom_title: "ออกแบบพิเศษ",
+        home_services_custom_desc: "ดีไซน์ส่วนตัวที่ปรับแต่งตามสไตล์และความชอบของคุณ",
+        home_services_custom_cta: "ติดต่อเรา",
+        home_featured_title: "ดีไซน์แนะนำ",
+        home_featured_subtitle: "สำรวจคอลเลกชั่นล่าสุดของดีไซน์ที่สวยงาม",
+        home_view_all: "ดูคอลเลกชั่นทั้งหมด",
+        home_footer_about: "สร้างความทรงจำที่สวยงามผ่านบริการพิมพ์คุณภาพพรีเมียมตั้งแต่ปี 2563",
+        home_footer_quicklinks: "ลิงก์ด่วน",
+        home_footer_contact: "ติดต่อเรา",
     },
 
     my: {
@@ -306,6 +360,33 @@ export const translations = {
 
         // Footer
         footer_rights: "© 2024 Eternity Invites. မူပိုင်ခွင့်များလေးစားသည်",
+
+        // New Homepage
+        home_hero_title_1: "လှပသော အမှတ်တရများကို",
+        home_hero_title_2: "အတူတကွ ဖန်တီးခြင်း",
+        home_hero_desc: "လှပသောမင်္ဂလာဖိတ်စာများမှသည် စိတ်ကြိုက်အဝတ်စပုံနှိပ်ခြင်းအထိ၊ ထူးချွန်သောအရည်အသွေးနှင့် ကိုယ်ပိုင်ဝန်ဆောင်မှုများဖြင့် သင့်အိမ်မက်ကို အကောင်အထည်ဖော်ပေးပါသည်",
+        home_cta_explore: "စုစည်းမှုများကြည့်ရှုရန်",
+        home_cta_quote: "စိတ်ကြိုက်ဈေးနှုန်းရယူရန်",
+        home_stats_couples: "ပျော်ရွှင်သောစုံတွဲများ",
+        home_stats_projects: "အောင်မြင်သောပရောဂျက်များ",
+        home_stats_satisfaction: "ကျေနပ်မှု",
+        home_services_title: "ကျွန်ုပ်တို့၏ဝန်ဆောင်မှုများ",
+        home_services_subtitle: "ပရီမီယံပုံနှိပ်ဝန်ဆောင်မှုများမှတစ်ဆင့် အမှတ်တရအတွေ့အကြုံများဖန်တီးရာ၌ အထူးပြုပါသည်",
+        home_services_wedding_title: "မင်္ဂလာဖိတ်စာများ",
+        home_services_wedding_desc: "သင့်အထူးနေ့၏ အနှစ်သာရကို ဖမ်းယူထားသော ကြေးကျေးကြံ့ခိုင်မှုရှိသော စိတ်ကြိုက်ဒီဇိုင်းများ",
+        home_services_wedding_cta: "ဒီဇိုင်းများကြည့်ရန်",
+        home_services_cloth_title: "အဝတ်စပုံနှိပ်ခြင်း",
+        home_services_cloth_desc: "တီရှပ်များ၊ ဟူးဒီးများနှင့် စိတ်ကြိုက်အဝတ်အစားများပေါ်တွင် အရည်အသွေးမြင့်ပုံနှိပ်ခြင်း",
+        home_services_cloth_cta: "စတင်ရန်",
+        home_services_custom_title: "စိတ်ကြိုက်ဒီဇိုင်း",
+        home_services_custom_desc: "သင့်ထူးခြားသောစတိုင်နှင့် နှစ်သက်မှုများနှင့်အညီ ပြင်ဆင်ထားသော ကိုယ်ပိုင်ဒီဇိုင်းများ",
+        home_services_custom_cta: "ဆက်သွယ်ရန်",
+        home_featured_title: "အထူးဒီဇိုင်းများ",
+        home_featured_subtitle: "ကျွန်ုပ်တို့၏နောက်ဆုံးထွက် လှပသောဒီဇိုင်းများကို ရှာဖွေပါ",
+        home_view_all: "စုစည်းမှုအားလုံးကြည့်ရန်",
+        home_footer_about: "၂၀၂၀ ခုနှစ်မှစတင်၍ ပရီမီယံပုံနှိပ်ဝန်ဆောင်မှုများမှတစ်ဆင့် လှပသောအမှတ်တရများဖန်တီးပေးလျက်ရှိပါသည်",
+        home_footer_quicklinks: "အမြန်လင့်ခ်များ",
+        home_footer_contact: "ဆက်သွယ်ရန်",
     }
 };
 
