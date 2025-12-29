@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import ProductsGrid from "@/components/ProductsGrid";
 import ServicesSection from "@/components/ServicesSection";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   // Fetch all products
   const products = await prisma.product.findMany({
