@@ -5,7 +5,8 @@ import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
+import ThemeToggle from "@/components/ThemeToggle";
+
 
 export default function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -35,8 +36,8 @@ export default function Navbar() {
             animate={{ y: 0 }}
             transition={{ duration: 0.5 }}
             className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled
-                    ? "bg-white/95 backdrop-blur-md shadow-lg"
-                    : "bg-white/80 backdrop-blur-sm shadow-md"
+                    ? "bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-lg"
+                    : "bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-md"
                 }`}
         >
             <div className="container mx-auto px-4">
@@ -68,7 +69,7 @@ export default function Navbar() {
                                     initial={{ opacity: 0, y: -10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: index * 0.1 }}
-                                    className="text-sm font-medium text-stone-700 hover:text-primary transition-colors duration-300"
+                                    className="text-sm font-medium text-stone-700 dark:text-stone-200 hover:text-primary dark:hover:text-amber-400 transition-colors duration-300"
                                 >
                                     {link.label}
                                 </motion.span>
@@ -77,23 +78,23 @@ export default function Navbar() {
                             </Link>
                         ))}
 
-                        {/* Language Switcher */}
+                        {/* Theme Toggle */}
                         <motion.div
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: 0.4 }}
                         >
-                            <LanguageSwitcher />
+                            <ThemeToggle />
                         </motion.div>
                     </div>
 
                     {/* Mobile Menu Button */}
                     <div className="md:hidden flex items-center gap-3">
-                        <LanguageSwitcher />
+                        <ThemeToggle />
                         <motion.button
                             whileTap={{ scale: 0.9 }}
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="p-2 rounded-lg text-stone-700 hover:bg-stone-100 transition-colors duration-200"
+                            className="p-2 rounded-lg text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-slate-700 transition-colors duration-200"
                         >
                             {mobileMenuOpen ? (
                                 <X className="w-6 h-6" />
@@ -113,7 +114,7 @@ export default function Navbar() {
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="md:hidden bg-white/95 backdrop-blur-md border-t border-stone-200 overflow-hidden"
+                        className="md:hidden bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-stone-200 dark:border-slate-700 overflow-hidden"
                     >
                         <div className="container mx-auto px-4 py-6 space-y-1">
                             {navLinks.map((link, index) => (
@@ -125,7 +126,7 @@ export default function Navbar() {
                                 >
                                     <Link
                                         href={link.href}
-                                        className="block py-3 px-4 rounded-lg text-stone-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-rose-50 hover:text-primary font-medium transition-all duration-200"
+                                        className="block py-3 px-4 rounded-lg text-stone-700 dark:text-stone-200 hover:bg-gradient-to-r hover:from-amber-50 hover:to-rose-50 dark:hover:from-slate-800 dark:hover:to-slate-700 hover:text-primary dark:hover:text-amber-400 font-medium transition-all duration-200"
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         {link.label}
