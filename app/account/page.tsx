@@ -7,6 +7,10 @@ import Link from "next/link";
 import { LogOut, Package, User as UserIcon, Calendar, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+// Force dynamic rendering - don't pre-render at build time
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 async function getUser() {
     const cookieStore = await cookies();
     const token = cookieStore.get("auth_token")?.value;

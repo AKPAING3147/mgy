@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 
-export default async function Collections() {
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
+export default async function CollectionsPage() {
     const products = await prisma.product.findMany();
 
     return (
