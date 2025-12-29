@@ -67,9 +67,9 @@ export default function PaymentPage({ params }: { params: Promise<{ orderId: str
 
                     <div className="bg-secondary/20 p-6 rounded-md mb-8 text-left">
                         <h3 className="font-bold mb-4 border-b border-primary/20 pb-2">Bank Transfer Details</h3>
-                        <p className="mb-2"><span className="font-medium">Bank Name:</span> Royal Wedding Bank</p>
-                        <p className="mb-2"><span className="font-medium">Account Name:</span> Eternity Invites Ltd.</p>
-                        <p className="mb-2"><span className="font-medium">Account Number:</span> 123-456-7890</p>
+                        <p className="mb-2"><span className="font-medium">Bank Name:</span> KBZ</p>
+                        <p className="mb-2"><span className="font-medium">Account Name:</span> U Aung Kyaw Paing</p>
+                        <p className="mb-2"><span className="font-medium">Account Number:</span> 09798989920</p>
                         <p className="text-xs text-muted-foreground mt-4">Please transfer the total amount and upload the slip below.</p>
                     </div>
 
