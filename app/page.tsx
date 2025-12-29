@@ -2,7 +2,7 @@ import Navbar from "@/components/Navbar";
 import { prisma } from "@/lib/prisma";
 import ProductsGrid from "@/components/ProductsGrid";
 import Link from "next/link";
-import { ArrowRight, Sparkles, Heart, Palette, Printer } from "lucide-react";
+import { ArrowRight, Heart, Palette, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const dynamic = 'force-dynamic';
@@ -29,12 +29,6 @@ export default async function Home() {
 
         <div className="container mx-auto px-4 py-20 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-100 border border-amber-300 rounded-full text-amber-900 text-sm font-medium mb-8 animate-fade-in">
-              <Sparkles className="w-4 h-4" />
-              Premium Wedding & Printing Services
-            </div>
-
             {/* Hero Title */}
             <h1 className="text-5xl md:text-7xl font-serif font-bold text-stone-900 mb-6 leading-tight animate-fade-in-up">
               Creating Beautiful
