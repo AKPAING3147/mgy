@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 
 export async function POST(req: NextRequest) {
     try {
@@ -18,12 +16,24 @@ export async function POST(req: NextRequest) {
 
         let fileUrl: string;
 
-        // Try Cloudinary first (if configured)
+        // Check if Cloudinary is configured
         const hasCloudinary = process.env.CLOUDINARY_CLOUD_NAME &&
             process.env.CLOUDINARY_API_KEY &&
             process.env.CLOUDINARY_API_SECRET;
 
-        if (hasCloudinary) {
+        if (!hasCloudinary) {
+            // In development without Cloudinary, use local storage
+            if (process.env.NODE_ENV === 'development') {
+                fileUrl = await saveFileLocally(file, orderId, buffer);
+            } else {
+                // Production requires Cloudinary
+                return NextResponse.json({
+                    success: false,
+                    message: "Cloudinary configuration required for production uploads. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET environment variables."
+                }, { status: 500 });
+            }
+        } else {
+            // Upload to Cloudinary
             try {
                 const cloudinary = (await import("@/lib/cloudinary")).default;
                 const base64 = buffer.toString('base64');
@@ -37,12 +47,12 @@ export async function POST(req: NextRequest) {
 
                 fileUrl = uploadResult.secure_url;
             } catch (cloudinaryError) {
-                console.error("Cloudinary upload failed, falling back to local storage:", cloudinaryError);
-                fileUrl = await saveFileLocally(file, orderId, buffer);
+                console.error("Cloudinary upload failed:", cloudinaryError);
+                return NextResponse.json({
+                    success: false,
+                    message: "Upload to Cloudinary failed: " + (cloudinaryError as Error).message
+                }, { status: 500 });
             }
-        } else {
-            // Cloudinary not configured - use local storage
-            fileUrl = await saveFileLocally(file, orderId, buffer);
         }
 
         // Update DB with file URL
@@ -67,18 +77,18 @@ export async function POST(req: NextRequest) {
 }
 
 async function saveFileLocally(file: File, orderId: string, buffer: Buffer): Promise<string> {
-    // Create uploads directory if it doesn't exist
+    // Only works in development - Vercel serverless doesn't support file system writes
+    const { writeFile, mkdir } = await import("fs/promises");
+    const path = await import("path");
+
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'payment-slips');
     await mkdir(uploadsDir, { recursive: true });
 
-    // Generate unique filename
     const fileExtension = file.name.split('.').pop() || 'jpg';
     const fileName = `${orderId}-${Date.now()}.${fileExtension}`;
     const filePath = path.join(uploadsDir, fileName);
 
-    // Save file
     await writeFile(filePath, buffer);
 
-    // Return public URL
     return `/uploads/payment-slips/${fileName}`;
 }
